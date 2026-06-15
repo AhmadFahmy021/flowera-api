@@ -25,11 +25,27 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+This project — **Flowera API** — is built on top of the NestJS framework, using **TypeORM** as the ORM layer and **Oracle Database (21c XE)** as the database engine.
+
 ## Project setup
 
 ```bash
 $ pnpm install
 ```
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+DB_HOST=127.0.0.1
+DB_PORT=1521
+DB_USERNAME=root
+DB_PASSWORD="your_password"
+DB_SERVICE_NAME=XEPDB1
+```
+
+> Wrap the password in quotes if it contains special characters (e.g. `#`).
 
 ## Compile and run the project
 
@@ -42,6 +58,51 @@ $ pnpm run start:dev
 
 # production mode
 $ pnpm run start:prod
+```
+
+## Database Migrations (TypeORM + Oracle)
+
+This project uses TypeORM migrations to manage the Oracle database schema. Entities are centralized under `src/database/entities/`.
+
+Generate a new migration based on entity changes:
+
+```bash
+$ pnpm migration:generate --name=NamaMigration
+```
+
+Run all pending migrations:
+
+```bash
+$ pnpm typeorm migration:run
+```
+
+Revert the last executed migration:
+
+```bash
+$ pnpm typeorm migration:revert
+```
+
+### Oracle-specific notes
+
+- Oracle does not support the `boolean` type — use `@Column({ type: 'number', width: 1, default: 1 })` instead.
+- For long text fields, use `@Column({ type: 'text' })` (TypeORM auto-maps this to `CLOB` on Oracle).
+- Soft deletes are implemented via `@DeleteDateColumn({ name: 'DELETED_AT' })`.
+
+## Project Structure
+
+```
+src/
+├── database/
+│   ├── entities/        # All TypeORM entities (centralized)
+│   ├── migrations/       # Generated migration files
+│   └── data-source.ts    # TypeORM DataSource configuration
+├── user/
+│   ├── dto/
+│   ├── user.controller.ts
+│   ├── user.module.ts
+│   └── user.service.ts
+├── app.module.ts
+└── main.ts
 ```
 
 ## Run tests
