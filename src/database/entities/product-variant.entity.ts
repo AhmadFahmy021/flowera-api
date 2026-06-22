@@ -47,9 +47,9 @@ export class ProductVariant {
   @OneToMany(() => AddonProduct, (addonProduct) => addonProduct.product_id)
   addon_product!: AddonProduct;
 
-  @OneToOne(
+  @OneToMany(
     () => ProductImage,
-    (productImage) => productImage.product_variant_id,
+    (productImage) => productImage.product_variant,
   )
   product_image!: ProductImage;
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/database/entities/product.entity';
 import { Seller } from 'src/database/entities/seller.entity';
@@ -7,14 +7,18 @@ import { ProductCreateDto, ProductUpdateDto } from './product.dto';
 import { RepositoryHelper } from 'src/common/helpers/repository.helper';
 import { Store } from 'src/database/entities/store.entity';
 import { SlugHelper } from 'src/common/helpers/slug.helper';
+import { ProductImage } from 'src/database/entities/product-image.entity';
+import { UploadService } from 'src/common/services/upload.service';
 
 @Injectable()
 export class ProductService {
     constructor (
         private readonly repositoryHelper: RepositoryHelper,
+        private readonly uploadService: UploadService,
         @InjectRepository(Seller) private readonly sellerRepository: Repository<Seller>,
         @InjectRepository(Product) private readonly productRepository: Repository<Product>,
         @InjectRepository(Store) private readonly storetRepository: Repository<Store>,
+        @InjectRepository(ProductImage) private readonly productImageRepository: Repository<ProductImage>,
     ){}
 
     async getDataAll(seller_id: number){
@@ -72,7 +76,7 @@ export class ProductService {
 
             const slug = SlugHelper.generateWithTimestamp(dto.name);    
 
-            await this.repositoryHelper.createAndSave(
+            const product = await this.repositoryHelper.createAndSave(
                 this.productRepository,
                 {
                     name: dto.name,
@@ -84,14 +88,66 @@ export class ProductService {
                     store_id: store.id,
                 }
             )
-
+            // console.log(product);
+            
             return {
                 status: "success",
-                message: "Product successfully created"
+                message: "Product successfully created",
+                data: {
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                }
             }
         } catch (error) {
             throw error;
         }
+    }
+
+    async uploadImages(
+        product_id: number,
+        files: Express.Multer.File[],
+    ){
+        const product =
+            await this.productRepository.findOne({
+                where: {
+                    id: product_id,
+                },
+            });
+
+        if (!product) {
+            throw new NotFoundException(
+                'Product is not found',
+            );
+        }
+
+        const images: ProductImage[] = [];
+
+        for (const file of files) {
+            const imagePath =
+                this.uploadService.generatePath(
+                    'products',
+                    file.filename,
+                );
+
+            const image =
+                await this.repositoryHelper.createAndSave(
+                    this.productImageRepository,
+                    {
+                        image_url: imagePath,
+                        product: {id:product.id},
+                    },
+                );
+
+            images.push(image);
+        }
+
+        return {
+            status: 'success',
+            message: "Upload image product is successfully",
+            total: images.length,
+            data: images,
+        };
     }
 
     async update(product_id: number, dto: ProductUpdateDto){

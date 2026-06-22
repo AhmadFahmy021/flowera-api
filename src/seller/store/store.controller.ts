@@ -41,4 +41,6 @@ export class StoreController {
     return this.storeService.detail(seller_id);    
   }
 
+  
+
 }

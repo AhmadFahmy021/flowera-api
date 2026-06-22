@@ -46,6 +46,6 @@ export class AddonProduct {
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
 
-  @OneToOne(() => ProductImage, (productImage) => productImage.addon_product_id)
+  @OneToMany(() => ProductImage, (productImage) => productImage.addon_product)
   product_image!: ProductImage;
 }

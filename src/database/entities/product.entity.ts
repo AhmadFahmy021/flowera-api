@@ -85,8 +85,11 @@ export class Product {
   @OneToMany(() => AddonProduct, (addonProduct) => addonProduct.product_id)
   addon_product!: AddonProduct;
 
-  @OneToOne(() => ProductImage, (productImage) => productImage.product_id)
-  product_image!: ProductImage;
+  @OneToMany(
+      () => ProductImage,
+      (image) => image.product,
+  )
+  product_image!: ProductImage[];
 
   @OneToMany(() => WishlistItem, (wishlistItem) => wishlistItem.wishlist_id)
   wishlist_item!: WishlistItem;

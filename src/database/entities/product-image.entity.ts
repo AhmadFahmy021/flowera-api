@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -17,25 +18,25 @@ export class ProductImage {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToOne(() => Product, (product) => product.product_image, {
+  @ManyToOne(() => Product, (product) => product.product_image, {
     nullable: true,
   })
   @JoinColumn({ name: 'PRODUCT_ID' })
-  product_id!: number;
+  product!: Product;
 
-  @OneToOne(
+  @ManyToOne(
     () => ProductVariant,
     (productVariant) => productVariant.product_image,
     { nullable: true },
   )
   @JoinColumn({ name: 'PRODUCT_VARIANT_ID' })
-  product_variant_id!: number;
+  product_variant!: ProductVariant;
 
-  @OneToOne(() => AddonProduct, (addonProduct) => addonProduct.product_image, {
+  @ManyToOne(() => AddonProduct, (addonProduct) => addonProduct.product_image, {
     nullable: true,
   })
   @JoinColumn({ name: 'ADDON_PRODUCT_ID' })
-  addon_product_id!: number;
+  addon_product!: AddonProduct;
 
   @Column({ name: 'IMAGE_URL', type: 'varchar2', length: 255 })
   image_url!: string;

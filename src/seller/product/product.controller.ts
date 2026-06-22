@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UploadedFiles, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { ProductCreateDto, ProductUpdateDto } from './product.dto';
+import { UploadFile } from 'src/common/decorators/upload-file.decorator';
+import { UploadFiles } from 'src/common/decorators/upload-files.decorator';
 
 @Controller('seller/product')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -17,18 +19,33 @@ export class ProductController {
   }
 
   @Post('create')
-  create(@Req() req, @Param('sub_categories') param, @Body() dto: ProductCreateDto){
+  create(@Req() req, @Query('sub_categories') param, @Body() dto: ProductCreateDto){
     const seller_id = req.user.sid;
     return this.productService.create(seller_id, dto, param)
   }
   
   @Put('update')
-  update(@Param('product') product_id: number, @Body() dto: ProductUpdateDto){
+  update(@Query('product') product_id: number, @Body() dto: ProductUpdateDto){
     return this.productService.update(product_id, dto)
   }
 
   @Delete('delete')
-  delete(@Param('product') product_id: number){
+  delete(@Query('product') product_id: number){
     return this.productService.delete(product_id);
+  }
+
+  @Post(':product_id/images')
+  @UploadFiles('products')
+  uploadImages(
+      @Param('product_id')
+      product_id: number,
+
+      @UploadedFiles()
+      files: Express.Multer.File[],
+  ){
+      return this.productService.uploadImages(
+          product_id,
+          files,
+      );
   }
 }
