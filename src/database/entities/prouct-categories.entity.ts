@@ -14,7 +14,7 @@ export class ProducCategories {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @Column({ name: 'title', length: 150 })
+  @Column({ name: 'TITLE', length: 150 })
   title!: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
@@ -26,9 +26,6 @@ export class ProducCategories {
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
 
-  @OneToMany(
-    () => SubProductCategories,
-    (subProductCategories) => subProductCategories.product_categories_id,
-  )
-  sub_product_categories;
+  @OneToMany(() => SubProductCategories, (subProductCategories) => subProductCategories.product_categories_id)
+  sub_product_categories!: SubProductCategories;
 }

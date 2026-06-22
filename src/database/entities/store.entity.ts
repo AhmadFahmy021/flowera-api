@@ -13,6 +13,7 @@ import { Seller } from './seller.entity';
 import { FaqStore } from './faq-store.entity';
 import { OrderItem } from './order-item.entity';
 import { Discount } from './discount.entity';
+import { Product } from './product.entity';
 
 @Entity({ name: 'STORE' })
 export class Store {
@@ -74,4 +75,10 @@ export class Store {
 
   @OneToOne(() => Discount, (discount) => discount.store_id)
   discount!: OrderItem;
+  
+  @OneToMany(
+    () => Product,
+    (product) => product.store_id,
+  )
+  products!: Product[];
 }

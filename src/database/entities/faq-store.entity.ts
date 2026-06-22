@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,7 +16,7 @@ export class FaqStore {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToMany(() => Store, (store) => store.faq_store)
+  @ManyToOne(() => Store, (store) => store.faq_store)
   @JoinColumn({ name: 'STORE_ID' })
   store_id!: number;
 

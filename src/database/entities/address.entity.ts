@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,7 +16,7 @@ export class Address {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: string;
 
-  @OneToMany(() => Profile, (profile) => profile.address)
+  @ManyToOne(() => Profile, (profile) => profile.address)
   @JoinColumn({ name: 'PROFILE_ID' })
   profile_id!: string;
 

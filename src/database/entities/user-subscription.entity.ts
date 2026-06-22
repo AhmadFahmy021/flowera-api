@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -17,14 +18,14 @@ export class UserSubscription {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToMany(
+  @ManyToOne(
     () => Subscriptions,
     (subscriptions) => subscriptions.user_subscription,
   )
   @JoinColumn({ name: 'SUBSCRIPTION_ID' })
   subscription_id!: Subscriptions;
 
-  @OneToMany(() => User, (user) => user.user_subscription)
+  @ManyToOne(() => User, (user) => user.user_subscription)
   @JoinColumn({ name: 'USER_ID' })
   user_id!: User;
 

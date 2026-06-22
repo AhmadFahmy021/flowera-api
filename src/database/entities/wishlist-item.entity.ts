@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,11 +17,11 @@ export class WishlistItem {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToMany(() => Wishlist, (wishlist) => wishlist.wishlist_item)
+  @ManyToOne(() => Wishlist, (wishlist) => wishlist.wishlist_item)
   @JoinColumn({ name: 'WISHLIST_ID' })
   wishlist_id!: number;
 
-  @OneToMany(() => Product, (product) => product.wishlist_item)
+  @ManyToOne(() => Product, (product) => product.wishlist_item)
   @JoinColumn({ name: 'PRODUCT_ID' })
   product_id!: number;
 

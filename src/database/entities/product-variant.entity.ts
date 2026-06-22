@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -21,7 +22,7 @@ export class ProductVariant {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToMany(() => Product, (product) => product.product_variant)
+  @ManyToOne(() => Product, (product) => product.product_variant)
   @JoinColumn({ name: 'PRODUCT_ID' })
   product_id!: number;
 

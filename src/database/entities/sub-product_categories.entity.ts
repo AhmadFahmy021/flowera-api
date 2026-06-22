@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,10 +17,7 @@ export class SubProductCategories {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToMany(
-    () => ProducCategories,
-    (productCategories) => productCategories.sub_product_categories,
-  )
+  @ManyToOne(() => ProducCategories, (productCategories) => productCategories.sub_product_categories)
   @JoinColumn({ name: 'PRODUCT_CATEGORIES_ID' })
   product_categories_id!: number;
 

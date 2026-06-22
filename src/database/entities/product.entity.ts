@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -18,6 +19,7 @@ import { Cart } from './cart.entity';
 import { OrderItem } from './order-item.entity';
 import { Discount } from './discount.entity';
 import { Review } from './review.entity';
+import { Store } from './store.entity';
 
 @Entity({ name: 'PRODUCT' })
 export class Product {
@@ -30,8 +32,8 @@ export class Product {
   @Column({ name: 'SLUG', type: 'varchar2', length: 255 })
   slug!: string;
 
-  @Column({ name: 'DESCRIPTION', type: 'clob' })
-  description!: string;
+  @Column({ name: 'DESCRIPTION', type: 'clob', nullable: true})
+  description?: string;
 
   @Column({
     name: 'RATING',
@@ -43,12 +45,21 @@ export class Product {
   })
   rating?: number;
 
-  @OneToMany(
+  @ManyToOne(
     () => SubProductCategories,
     (subProductCategories) => subProductCategories.product,
   )
   @JoinColumn({ name: 'SUB_PRODUCT_CATEGORIES_ID' })
   sub_product_categories_id!: number;
+
+  @ManyToOne(
+    () => Store,
+    (store) => store.products,
+  )
+  @JoinColumn({
+    name: 'STORE_ID',
+  })
+  store_id!: number;
 
   @Column({ name: 'IS_LIFE_FLOWER', type: 'number', width: 1, default: 1 })
   isLifeFlower!: boolean;

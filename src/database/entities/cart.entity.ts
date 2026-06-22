@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -17,15 +18,15 @@ export class Cart {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToMany(() => User, (user) => user.cart)
+  @ManyToOne(() => User, (user) => user.cart)
   @JoinColumn({ name: 'USER_ID' })
   user_id!: number;
 
-  @OneToMany(() => Product, (product) => product.cart)
+  @ManyToOne(() => Product, (product) => product.cart)
   @JoinColumn({ name: 'PRODUCT_ID' })
   product_id!: number;
 
-  @OneToMany(() => ProductVariant, (productVariant) => productVariant.cart, {
+  @ManyToOne(() => ProductVariant, (productVariant) => productVariant.cart, {
     nullable: true,
   })
   @JoinColumn({ name: 'PRODUCT_VARIANT_ID' })

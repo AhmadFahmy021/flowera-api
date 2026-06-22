@@ -62,7 +62,7 @@ export class StoreService {
                 throw new PreconditionFailedException("Create seller failure")
             }
 
-            const slug = SlugHelper.generate(dto.name);
+            const slug = SlugHelper.generateWithTimestamp(dto.name);
 
             await this.repositoryHelper.createAndSave(
                 this.storeRepository,
@@ -111,7 +111,7 @@ export class StoreService {
             let slug: string | undefined;
 
             if (dto.name) {
-                slug = SlugHelper.generate(
+                slug = SlugHelper.generateWithTimestamp(
                     dto.name,
                 );
             }

@@ -7,6 +7,7 @@ import {
   DeleteDateColumn,
   OneToOne,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Admin } from './admin.entity';
 import { Seller } from './seller.entity';
@@ -61,7 +62,7 @@ export class User {
   @OneToOne(() => Seller, (seller) => seller.user)
   seller?: Seller;
 
-  @OneToMany(
+  @ManyToOne(
     () => UserSubscription,
     (userSubscription) => userSubscription.user_id,
   )
