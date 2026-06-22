@@ -27,6 +27,9 @@ export class Product {
   @Column({ name: 'NAME', type: 'varchar2', length: 150 })
   name!: string;
 
+  @Column({ name: 'SLUG', type: 'varchar2', length: 255 })
+  slug!: string;
+
   @Column({ name: 'DESCRIPTION', type: 'clob' })
   description!: string;
 

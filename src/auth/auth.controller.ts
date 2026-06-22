@@ -5,10 +5,11 @@ import {
   Body,
   UseGuards,
   Req,
+  Res,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { Request } from 'express'; // ✅ import biasa sudah cukup
+import express from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -21,29 +22,78 @@ import { GoogleGuard } from '../guards/google.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private getCookieOptions(
+    maxAge: number,
+  ): express.CookieOptions {
+    return {
+      httpOnly: true,
+      secure:
+        process.env.NODE_ENV ===
+        'production',
+      sameSite: 'lax',
+      maxAge,
+    };
+  }
+
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const tokens = await this.authService.register(dto);
+    res.cookie('accessToken', tokens.accessToken, this.getCookieOptions(15 * 60 * 1000));
+    res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
+    return {
+      status: "success",
+      message: "Account has been successfully registered"
+    };
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const tokens = await this.authService.login(dto);
+    res.cookie('accessToken', tokens.accessToken, this.getCookieOptions(15 * 60 * 1000));
+    res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
+    return {
+      status: "success",
+      message: "You have successfully logged in"
+    };
   }
 
   @Post('logout')
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.OK)
-  logout(@Req() req: any) {
-    return this.authService.logout(req.user.id);
+  async logout(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return this.authService.logout(req.user.uid);
   }
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
-  refreshToken(@Req() req: any) {
-    return this.authService.refreshToken(req.user.id, req.user.refreshToken);
+  async refreshToken(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const refreshToken =
+      req.cookies.refreshToken;
+
+    const tokens =
+      await this.authService.refreshToken(
+        req.user.uid,
+        refreshToken,
+      );
+    res.cookie('accessToken', tokens.accessToken, this.getCookieOptions(15 * 60 * 1000));
+    res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
+    return tokens;
   }
 
   @Post('change-password')
@@ -55,17 +105,17 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleGuard)
-  googleCallback(@Req() req: any) {
-    return this.authService.googleLogin(req.user);
+  async googleCallback(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const tokens = await this.authService.googleLogin(req.user);
+    res.cookie('accessToken', tokens.accessToken, this.getCookieOptions(15 * 60 * 1000));
+    res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
+    return tokens;
   }
 
   @Get('google')
   @UseGuards(GoogleGuard)
   googleAuth() {}
-
-  // @Get('google/callback')
-  // @UseGuards(GoogleGuard)
-  // googleCallback(@Req() req: Request) {
-  //   return this.authService.googleLogin(req.user as any);
-  // }
 }

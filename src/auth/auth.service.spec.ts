@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../database/entities/user.entity';
+import { Admin } from '../database/entities/admin.entity';
+import { Seller } from '../database/entities/seller.entity';
 import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
@@ -12,6 +14,14 @@ describe('AuthService', () => {
     create: jest.fn(),
     save: jest.fn(),
     update: jest.fn(),
+  };
+
+  const mockAdminRepository = {
+    findOne: jest.fn(),
+  };
+
+  const mockSellerRepository = {
+    findOne: jest.fn(),
   };
 
   const mockConfigService = {
@@ -31,6 +41,14 @@ describe('AuthService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
+        },
+        {
+          provide: getRepositoryToken(Admin),
+          useValue: mockAdminRepository,
+        },
+        {
+          provide: getRepositoryToken(Seller),
+          useValue: mockSellerRepository,
         },
         {
           provide: ConfigService,

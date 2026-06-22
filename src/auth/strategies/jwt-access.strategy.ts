@@ -13,7 +13,19 @@ export class JwtAccessStrategy extends PassportStrategy(
 ) {
   constructor(private config: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: any) => {
+          let token = null;
+          if (req && req.cookies) {
+            token = req.cookies['accessToken'];
+          }
+          if (!token && req && req.headers && req.headers.cookie) {
+            const match = req.headers.cookie.match(/(^| )accessToken=([^;]+)/);
+            if (match) token = match[2];
+          }
+          return token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+        },
+      ]),
       secretOrKey: fs.readFileSync(
         path.join(process.cwd(), config.get('JWT_ACCESS_PUBLIC_KEY') as string),
       ),
@@ -21,8 +33,8 @@ export class JwtAccessStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: { sub: number; email: string }) {
+  async validate(payload: { uid: number; email?: string; roles?: string[] }) {
     if (!payload) throw new UnauthorizedException();
-    return { id: payload.sub, email: payload.email };
+    return { id: payload.uid, email: payload.email, roles: payload.roles || [] };
   }
 }

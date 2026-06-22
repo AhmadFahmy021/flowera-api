@@ -10,20 +10,49 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { User } from '../database/entities/user.entity';
+import { Admin } from '../database/entities/admin.entity';
+import { Seller } from '../database/entities/seller.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 // import { StringValue } from 'ms';
 import * as fs from 'fs';
 import * as path from 'path';
+import { isNotEmpty } from 'class-validator';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Admin)
+    private adminRepository: Repository<Admin>,
+    @InjectRepository(Seller)
+    private sellerRepository: Repository<Seller>,
     private config: ConfigService,
-  ) {}
+  ) {
+    this.validateJwtKeys();
+   }
+
+  private validateJwtKeys() {
+    const privateKey = path.join(
+      process.cwd(),
+      this.config.get<string>('JWT_ACCESS_PRIVATE_KEY')!,
+    );
+
+    const publicKey = path.join(
+      process.cwd(),
+      this.config.get<string>('JWT_ACCESS_PUBLIC_KEY')!,
+    );
+
+    if (!fs.existsSync(privateKey)) {
+      throw new Error(`Private key tidak ditemukan: ${privateKey}`);
+    }
+
+    if (!fs.existsSync(publicKey)) {
+      throw new Error(`Public key tidak ditemukan: ${publicKey}`);
+    }
+  }
 
   // ─── Register ───────────────────────────────────────────
   async register(dto: RegisterDto) {
@@ -39,7 +68,7 @@ export class AuthService {
     });
     await this.userRepository.save(user);
 
-    const tokens = await this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(user.id, user.email, user.avatar);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -54,7 +83,7 @@ export class AuthService {
     const isMatch = await bcrypt.compare(dto.password, user.password);
     if (!isMatch) throw new UnauthorizedException('Email atau password salah');
 
-    const tokens = await this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(user.id, user.email, user.avatar);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -68,15 +97,15 @@ export class AuthService {
   // ─── Refresh Token ──────────────────────────────────────
   async refreshToken(userId: number, refreshToken: string) {
     const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user || !user.refreshToken)
-      throw new ForbiddenException('Akses ditolak');
+    if (!user || !user.refreshToken) throw new ForbiddenException('Akses ditolak');
 
     const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
     if (!isMatch) throw new ForbiddenException('Refresh token tidak valid');
 
-    const tokens = await this.generateTokens(user.id, user.email);
+    // Generate token baru keduanya (access + refresh diperpanjang)
+    const tokens = await this.generateTokens(user.id, user.email, user.avatar);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
-    return tokens;
+    return tokens;  // kirim refresh token baru juga ke frontend
   }
 
   // ─── Change Password ────────────────────────────────────
@@ -137,29 +166,69 @@ export class AuthService {
       });
     }
 
-    const tokens = await this.generateTokens(user.id, user.email);
+    
+
+    const tokens = await this.generateTokens(user.id, user.email, user.avatar);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
   // ─── Helpers ────────────────────────────────────────────
-  private generateTokens(userId: number, email: string) {
-    const privateKey = fs.readFileSync(
+  private getPrivateKey(): Buffer {
+    return fs.readFileSync(
       path.join(
         process.cwd(),
         this.config.get('JWT_ACCESS_PRIVATE_KEY') as string,
       ),
     );
+  }
 
-    const accessToken = jwt.sign({ sub: userId, email }, privateKey, {
+  private generateAccessToken(
+    userId: number,
+    // email: string,
+    avatar: string | undefined,
+    roles: string[],
+    privateKey: Buffer,
+  ): string {
+    return jwt.sign({ uid: userId, avatar, roles }, privateKey, {
       algorithm: 'RS256',
       expiresIn: this.config.get('JWT_ACCESS_EXPIRES'),
     });
+  }
 
-    const refreshToken = jwt.sign({ sub: userId, email }, privateKey, {
+  private generateRefreshToken(
+    userId: number,
+    // email: string,
+    avatar: string | undefined,
+    roles: string[],
+    privateKey: Buffer,
+  ): string {
+    return jwt.sign({ uid: userId, avatar, roles }, privateKey, {
       algorithm: 'RS256',
       expiresIn: this.config.get('JWT_REFRESH_EXPIRES'),
     });
+  }
+
+  private async generateTokens(userId: number, email: string, avatar: string | undefined) {
+    const privateKey = this.getPrivateKey();
+
+    const roles: string[] = [
+      "user"
+    ];
+
+
+    const admin = await this.adminRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    if (admin) roles.push('admin');
+
+    const seller = await this.sellerRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    if (seller) roles.push('seller');
+
+    const accessToken = this.generateAccessToken(userId, avatar, roles, privateKey);
+    const refreshToken = this.generateRefreshToken(userId, avatar, roles, privateKey);
 
     return { accessToken, refreshToken };
   }

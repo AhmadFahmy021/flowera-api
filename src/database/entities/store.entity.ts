@@ -22,12 +22,18 @@ export class Store {
   @Column({ name: 'NAME', type: 'varchar2', length: 150 })
   name!: string;
 
+  @Column({ name: 'SLUG', type: 'varchar2', length: 255 })
+  slug!: string;
+
+  @Column({ name: 'LOGO', type: 'varchar2', length: 255, nullable: true})
+  logo?: string;
+
   @OneToOne(() => Seller, (seller) => seller.store)
   @JoinColumn({ name: 'SELLER_ID' })
   seller_id!: number;
 
   @Column({ name: 'ADDRESS', type: 'clob' })
-  alamat!: string;
+  address!: string;
 
   @Column({ name: 'TYPE', type: 'varchar2', length: 150 })
   type!: string;
