@@ -30,34 +30,65 @@ export class JwtAuthGuard implements CanActivate {
     return fs.readFileSync(keyPath);
   }
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(
+    context: ExecutionContext,
+  ): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const token = request.cookies.accessToken;
-    
+    const accessToken =
+      request.cookies?.accessToken;
 
-    if (!token) {
-        throw new UnauthorizedException(
-        'Access token tidak ditemukan',
-        );
-    }
+    const refreshToken =
+      request.cookies?.refreshToken;
 
-    try {
+    const publicKey = this.getPublicKey();
+
+    // ==========================
+    // ACCESS TOKEN
+    // ==========================
+    if (accessToken) {
+      try {
         const payload = jwt.verify(
-        token,
-        this.getPublicKey(),
-        {
+          accessToken,
+          publicKey,
+          {
             algorithms: ['RS256'],
-        },
+          },
         );
 
         request.user = payload;
 
         return true;
-    } catch (error) {
-        throw new UnauthorizedException(
-        'Token tidak valid',
+      } catch (error) {
+        // lanjut ke refresh token
+      }
+    }
+
+    // ==========================
+    // REFRESH TOKEN
+    // ==========================
+    if (refreshToken) {
+      try {
+        const payload = jwt.verify(
+          refreshToken,
+          publicKey,
+          {
+            algorithms: ['RS256'],
+          },
         );
+
+        request.user = payload;
+
+        return true;
+      } catch (error) {
+        throw new UnauthorizedException(
+          'Refresh token tidak valid',
+        );
+      }
     }
-    }
+
+    throw new UnauthorizedException(
+      'Session expired',
+    );
+  }
 }

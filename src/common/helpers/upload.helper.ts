@@ -1,12 +1,11 @@
-// src/common/helpers/upload.helper.ts
-
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { promises as fs } from 'fs';
 
 export class UploadHelper {
   static storage(folder: string) {
     return diskStorage({
-      destination: `./uploads/${folder}`,
+      destination: `./src/uploads/${folder}`,
 
       filename: (req, file, callback) => {
         const ext = path.extname(
@@ -20,4 +19,24 @@ export class UploadHelper {
       },
     });
   }
+  static async deleteFile(
+    filePath: string,
+    ): Promise<void> {
+    try {
+        const fullPath = path.resolve(
+        process.cwd(),
+        'src',
+        filePath.replace(/^\/uploads\//, 'uploads/'),
+        );
+
+        console.log('Delete File:', fullPath);
+
+        await fs.unlink(fullPath);
+    } catch (error) {
+        console.error(
+        'Delete file error:',
+        error,
+        );
+    }
+    }
 }

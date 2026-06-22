@@ -1,14 +1,16 @@
-import { Body, Controller, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, UploadedFile, UseGuards } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { StoreCreateDto, StoreUpdateDto } from './store.dto';
+import { UploadFile } from 'src/common/decorators/upload-file.decorator';
+import { UploadService } from 'src/common/services/upload.service';
 
 @Controller('seller/store')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StoreController {
-  constructor(private readonly storeService: StoreService) {}
+  constructor(private readonly storeService: StoreService, private readonly uploadService: UploadService) {}
 
   @Post('create')
   create(@Req() req, @Body() dto: StoreCreateDto  ){
@@ -23,4 +25,20 @@ export class StoreController {
     return this.storeService.update(seller_id, dto);
     
   }
+
+  @Post('upload/logo')
+  @Roles('seller')
+  @UploadFile('stores')
+  uploadLogo(@Req() req, @UploadedFile() file: Express.Multer.File) {
+    const seller_id = req.user.sid;
+    return this.storeService.upload(seller_id, file);
+  }
+
+  @Get("detail")
+  @Roles("seller")
+  detail(@Req() req){
+    const seller_id = req.user.sid;
+    return this.storeService.detail(seller_id);    
+  }
+
 }

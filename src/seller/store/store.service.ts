@@ -8,11 +8,14 @@ import { Store } from 'src/database/entities/store.entity';
 import slugify from 'slugify';
 import { SlugHelper } from 'src/common/helpers/slug.helper';
 import { RepositoryHelper } from 'src/common/helpers/repository.helper';
+import { UploadService } from 'src/common/services/upload.service';
+import { UploadHelper } from 'src/common/helpers/upload.helper';
 
 @Injectable()
 export class StoreService {
     constructor(
         private readonly repositoryHelper: RepositoryHelper,
+        private readonly uploadService: UploadService,
         @InjectRepository(Seller) private readonly sellerRepository: Repository<Seller>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Store) private readonly storeRepository: Repository<Store>,
@@ -135,5 +138,85 @@ export class StoreService {
         }
     }
 
+    async upload(seller_id: number, file?: Express.Multer.File){
+        try {
+            if (file == undefined) {
+                throw new BadRequestException("File upload is required")
+            }
+            const seller = await this.sellerRepository.exists({
+                where: {
+                    id: seller_id
+                }
+            })
+
+            if (!seller) {
+                throw new NotFoundException("Account seller is not found");
+            }
+
+            const store = await this.storeRepository.findOne({
+                where: {
+                    seller_id: seller_id
+                }
+            })
+
+            if (!store) {
+                throw new NotFoundException("Store is not found")
+            }
+
+
+            if (store.logo) {
+                console.log("File ada di db");
+                
+                await UploadHelper.deleteFile(store.logo)
+            }
+
+            let logo: string = this.uploadService.generatePath('stores', file.filename)
+
+            await this.storeRepository.update(
+                {id: store.id},
+                {
+                    logo: logo
+                }
+            )
+
+            return {
+                status: "success",
+                message: "Successfully uploaded the store logo"
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async detail(seller_id: number){
+        try {
+            const seller = await this.sellerRepository.exists({
+                where: {
+                    id: seller_id
+                }
+            })
+
+            if (!seller) {
+                throw new NotFoundException("Seller account is not found")
+            }
+
+            const store = await this.storeRepository.findOne({
+                where: {
+                    seller_id: seller_id
+                }
+            })
+
+            if (!store) {
+                throw new NotFoundException("Store is not found")
+            }
+
+            return {
+                status: "success",
+                data: store
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
     
 }
