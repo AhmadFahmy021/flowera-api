@@ -17,6 +17,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAccessGuard } from '../guards/jwt-access.guard';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { GoogleGuard } from '../guards/google.guard';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +46,9 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
     return {
       status: "success",
-      message: "Account has been successfully registered"
+      message: "Account has been successfully registered",
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     };
   }
 
@@ -60,12 +63,15 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
     return {
       status: "success",
-      message: "You have successfully logged in"
+      message: "You have successfully logged in",
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     };
   }
 
   @Post('logout')
-  @UseGuards(JwtAccessGuard)
+  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.OK)
   async logout(
     @Req() req: any,
@@ -112,10 +118,15 @@ export class AuthController {
     const tokens = await this.authService.googleLogin(req.user);
     res.cookie('accessToken', tokens.accessToken, this.getCookieOptions(15 * 60 * 1000));
     res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
-    return tokens;
+    return res.redirect('http://localhost:3001');
   }
 
   @Get('google')
   @UseGuards(GoogleGuard)
   googleAuth() {}
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Req() req: any) {
+    return this.authService.me(req.user.uid);
+  }
 }

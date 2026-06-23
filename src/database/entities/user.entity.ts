@@ -27,8 +27,8 @@ export class User {
   @Column({ name: 'NAME', length: 100 })
   name!: string;
 
-  @Column({ name: 'USERNAME', length: 100, unique: true })
-  username!: string;
+  @Column({ name: 'PHONE_NUMBER', length: 50, nullable: true})
+  phone_number?: string;
 
   @Column({ name: 'EMAIL', length: 255, unique: true })
   email!: string;
@@ -62,7 +62,7 @@ export class User {
   @OneToOne(() => Seller, (seller) => seller.user)
   seller?: Seller;
 
-  @ManyToOne(
+  @OneToMany(
     () => UserSubscription,
     (userSubscription) => userSubscription.user_id,
   )

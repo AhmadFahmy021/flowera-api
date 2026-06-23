@@ -62,7 +62,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
       name: dto.name,
-      username: dto.username,
+      phone_number: dto.phone_number,
       email: dto.email,
       password: hashedPassword,
     });
@@ -134,27 +134,11 @@ export class AuthService {
     if (!user) {
       const emailPrefix = googleUser.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
       let username = emailPrefix;
-      let isUnique = false;
-      let attempts = 0;
 
-      while (!isUnique && attempts < 10) {
-        const existingUsername = await this.userRepository.findOneBy({ username });
-        if (!existingUsername) {
-          isUnique = true;
-        } else {
-          username = `${emailPrefix}${Math.floor(100 + Math.random() * 900)}`;
-          attempts++;
-        }
-      }
-
-      if (!isUnique) {
-        username = `${emailPrefix}${Date.now().toString().slice(-4)}`;
-      }
 
       user = this.userRepository.create({
         name: googleUser.name,
         email: googleUser.email,
-        username,
         googleId: googleUser.googleId,
         avatar: googleUser.avatar,
       });
@@ -236,5 +220,37 @@ export class AuthService {
   private async saveRefreshToken(userId: number, refreshToken: string) {
     const hashed = await bcrypt.hash(refreshToken, 10);
     await this.userRepository.update(userId, { refreshToken: hashed });
+  }
+
+  async me(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const roles: string[] = ['user'];
+
+    const admin = await this.adminRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (admin) roles.push('admin');
+
+    const seller = await this.sellerRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (seller) roles.push('seller');
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      roles,
+    };
   }
 }
