@@ -27,7 +27,7 @@ export class AddonProduct {
 
   @ManyToOne(() => Product, (product) => product.addon_product)
   @JoinColumn({ name: 'PRODUCT_ID' })
-  product_id!: number;
+  product!: Product;
 
   @ManyToOne(
     () => ProductVariant,
@@ -35,7 +35,7 @@ export class AddonProduct {
     { nullable: true },
   )
   @JoinColumn({ name: 'PRODUCT_VARIANT_ID' })
-  product_variant_id!: number;
+  product_variant!: ProductVariant;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;

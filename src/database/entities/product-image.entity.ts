@@ -41,6 +41,9 @@ export class ProductImage {
   @Column({ name: 'IMAGE_URL', type: 'varchar2', length: 255 })
   image_url!: string;
 
+  @Column({ name: 'IS_DEFAULT', type: 'number', width: 1, default: 0 })
+  isDefault!: boolean;
+
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;
 

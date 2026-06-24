@@ -78,11 +78,11 @@ export class Product {
 
   @OneToMany(
     () => ProductVariant,
-    (productVariant) => productVariant.product_id,
+    (productVariant) => productVariant.product,
   )
   product_variant!: ProductVariant;
 
-  @OneToMany(() => AddonProduct, (addonProduct) => addonProduct.product_id)
+  @OneToMany(() => AddonProduct, (addonProduct) => addonProduct.product)
   addon_product!: AddonProduct;
 
   @OneToMany(

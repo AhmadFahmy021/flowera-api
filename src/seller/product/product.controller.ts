@@ -48,4 +48,9 @@ export class ProductController {
           files,
       );
   }
+
+  @Post('images/default/:imageProduct')
+  setDefaultImage(@Param("imageProduct") image_product_id: number, @Body("product_id") product_id: number){
+    return this.productService.setDefaultImage(image_product_id, product_id)
+  }
 }

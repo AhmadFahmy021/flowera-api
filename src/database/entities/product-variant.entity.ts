@@ -24,7 +24,7 @@ export class ProductVariant {
 
   @ManyToOne(() => Product, (product) => product.product_variant)
   @JoinColumn({ name: 'PRODUCT_ID' })
-  product_id!: number;
+  product!: Product;
 
   @Column({ name: 'TITLE', length: 150, type: 'varchar2' })
   title!: string;
@@ -35,6 +35,8 @@ export class ProductVariant {
   @Column({ name: 'PRICE', type: 'number' })
   price!: number;
 
+  
+
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;
 
@@ -44,7 +46,7 @@ export class ProductVariant {
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
 
-  @OneToMany(() => AddonProduct, (addonProduct) => addonProduct.product_id)
+  @OneToMany(() => AddonProduct, (addonProduct) => addonProduct.product)
   addon_product!: AddonProduct;
 
   @OneToMany(

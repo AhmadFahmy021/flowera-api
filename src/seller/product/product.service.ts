@@ -153,6 +153,36 @@ export class ProductService {
         };
     }
 
+    async setDefaultImage(
+        image_id: number,
+        product_id: number,
+    ) {
+        await this.productImageRepository.update(
+            {
+                product: {
+                    id: product_id,
+                },
+            },
+            {
+                isDefault: false,
+            },
+        );
+
+        await this.productImageRepository.update(
+            {
+                id: image_id,
+            },
+            {
+                isDefault: true,
+            },
+        );
+
+        return {
+            status: "success",
+            message: "Set image default is successfully"
+        }
+    }
+
     async update(product_id: number, dto: ProductUpdateDto){
         try {
             const product = await this.productRepository.exists({

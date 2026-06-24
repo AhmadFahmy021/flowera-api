@@ -22,7 +22,8 @@ export class HomeService {
 
             const product = await this.productRepository.find({
                 relations: {
-                    store: true
+                    store: true,
+                    product_image: true
                 }
             })
 
@@ -37,4 +38,6 @@ export class HomeService {
             throw error;
         }
     }
+
+    
 }
