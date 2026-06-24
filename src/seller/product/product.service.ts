@@ -25,7 +25,7 @@ export class ProductService {
         try {
             const store = await this.storetRepository.findOne({
                 where: {
-                    seller_id: seller_id
+                    seller: {id: seller_id}
                 }
             })
 
@@ -67,7 +67,7 @@ export class ProductService {
             }
             const store = await this.storetRepository.findOne({
                 where: {
-                    seller_id: seller_id
+                    seller: {id: seller_id}
                 }
             })
 

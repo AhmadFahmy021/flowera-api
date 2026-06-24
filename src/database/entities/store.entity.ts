@@ -31,7 +31,7 @@ export class Store {
 
   @OneToOne(() => Seller, (seller) => seller.store)
   @JoinColumn({ name: 'SELLER_ID' })
-  seller_id!: number;
+  seller!: Seller;
 
   @Column({ name: 'ADDRESS', type: 'clob' })
   address!: string;

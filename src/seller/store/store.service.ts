@@ -73,7 +73,7 @@ export class StoreService {
                     city: dto.city,
                     type: dto.type,
                     address: dto.address,
-                    seller_id: seller.id
+                    seller: {id: seller.id}
                 }
             )
 
@@ -100,7 +100,7 @@ export class StoreService {
 
             const store = await this.storeRepository.findOne({
                 where: {
-                    seller_id: sellerExists.id
+                    seller: {id: sellerExists.id}
                 }
             })
 
@@ -155,7 +155,9 @@ export class StoreService {
 
             const store = await this.storeRepository.findOne({
                 where: {
-                    seller_id: seller_id
+                    seller: {
+                        id: seller_id
+                    }
                 }
             })
 
@@ -202,10 +204,13 @@ export class StoreService {
 
             const store = await this.storeRepository.findOne({
                 where: {
-                    seller_id: seller_id
-                }
+                    seller: {
+                        id: seller_id
+                    }
+                },
             })
-
+            console.log(store);
+            
             if (!store) {
                 throw new NotFoundException("Store is not found")
             }

@@ -29,6 +29,6 @@ export class Seller {
   @JoinColumn({ name: 'USER_ID' })
   user!: User;
 
-  @OneToOne(() => Store, (store) => store.seller_id)
+  @OneToOne(() => Store, (store) => store.seller)
   store!: Store;
 }
