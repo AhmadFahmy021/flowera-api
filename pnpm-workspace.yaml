@@ -1,3 +1,7 @@
+allowBuilds:
+  bcrypt: true
+  oracledb: true
+  unrs-resolver: true
 ignoredBuiltDependencies:
   - bcrypt
   - oracledb
