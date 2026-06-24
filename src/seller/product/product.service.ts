@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/database/entities/product.entity';
 import { Seller } from 'src/database/entities/seller.entity';
 import { Repository } from 'typeorm';
-import { ProductCreateDto, ProductUpdateDto } from './product.dto';
+import { ProductCreateDto, ProductUpdateDto, UploadProductImageDto } from './product.dto';
 import { RepositoryHelper } from 'src/common/helpers/repository.helper';
 import { Store } from 'src/database/entities/store.entity';
 import { SlugHelper } from 'src/common/helpers/slug.helper';
@@ -39,7 +39,9 @@ export class ProductService {
                         id: store.id
                     }
                 },
-                relations: ['product_image']
+                relations: {
+                    product_image: true
+                }
             })            
 
             if (!product) {
@@ -111,7 +113,9 @@ export class ProductService {
     async uploadImages(
         product_id: number,
         files: Express.Multer.File[],
+        defaultIndex?: number,
     ){
+       
         const product =
             await this.productRepository.findOne({
                 where: {
@@ -127,7 +131,7 @@ export class ProductService {
 
         const images: ProductImage[] = [];
 
-        for (const file of files) {
+        for (const [index, file] of files.entries()) {
             const imagePath =
                 this.uploadService.generatePath(
                     'products',
@@ -139,7 +143,13 @@ export class ProductService {
                     this.productImageRepository,
                     {
                         image_url: imagePath,
-                        product: {id:product.id},
+                        isDefault:
+                            defaultIndex !== undefined
+                                ? index == defaultIndex
+                                : false,
+                        product: {
+                            id: product.id,
+                        },
                     },
                 );
 

@@ -20,3 +20,7 @@ export class ProductCreateDto{
 }
 
 export class ProductUpdateDto extends PartialType(ProductCreateDto){}
+
+export class UploadProductImageDto {
+    defaultIndex?: number;
+}

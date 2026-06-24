@@ -20,18 +20,31 @@ export class HomeService {
                 id: true
             }});
 
-            const product = await this.productRepository.find({
+            const products = await this.productRepository.find({
                 relations: {
                     store: true,
-                    product_image: true
-                }
-            })
+                    product_image: true,
+                },
+            });
+
+            const result = products.map((product) => {
+                const image =
+                    product.product_image.find(
+                        (img) => img.isDefault,
+                    )?.image_url ?? null;
+
+                return {
+                    ...product,
+                    image,
+                    product_image: undefined,
+                };
+            });
 
             const store = await this.storeRepository.find()
             
             return {
                 productCategories: productCategories ?? [],
-                product: product ?? [],
+                product: result ?? [],
                 store: store ?? []
             }
         } catch (error) {
@@ -39,5 +52,5 @@ export class HomeService {
         }
     }
 
-    
+
 }

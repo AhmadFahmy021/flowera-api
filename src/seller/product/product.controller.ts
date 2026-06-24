@@ -3,7 +3,7 @@ import { ProductService } from './product.service';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { ProductCreateDto, ProductUpdateDto } from './product.dto';
+import { ProductCreateDto, ProductUpdateDto, UploadProductImageDto } from './product.dto';
 import { UploadFile } from 'src/common/decorators/upload-file.decorator';
 import { UploadFiles } from 'src/common/decorators/upload-files.decorator';
 
@@ -42,10 +42,14 @@ export class ProductController {
 
       @UploadedFiles()
       files: Express.Multer.File[],
+
+      @Body()
+      dto: UploadProductImageDto,
   ){
       return this.productService.uploadImages(
           product_id,
           files,
+          dto.defaultIndex
       );
   }
 
