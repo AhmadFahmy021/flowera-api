@@ -38,7 +38,8 @@ export class ProductService {
                     store: {
                         id: store.id
                     }
-                }
+                },
+                relations: ['product_image']
             })            
 
             if (!product) {
