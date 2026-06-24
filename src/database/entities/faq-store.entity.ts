@@ -18,7 +18,7 @@ export class FaqStore {
 
   @ManyToOne(() => Store, (store) => store.faq_store)
   @JoinColumn({ name: 'STORE_ID' })
-  store_id!: number;
+  store!: Store;
 
   @Column({ name: 'TITLE', length: 150, type: 'varchar2' })
   title!: string;

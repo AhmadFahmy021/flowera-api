@@ -124,6 +124,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(GoogleGuard)
   googleAuth() {}
+  
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async me(@Req() req: any) {

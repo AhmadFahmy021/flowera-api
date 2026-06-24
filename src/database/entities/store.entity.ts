@@ -67,7 +67,7 @@ export class Store {
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
 
-  @OneToMany(() => FaqStore, (faqStore) => faqStore.store_id)
+  @OneToMany(() => FaqStore, (faqStore) => faqStore.store)
   faq_store!: number;
 
   @OneToOne(() => OrderItem, (orderItem) => orderItem.store_id)
@@ -78,7 +78,7 @@ export class Store {
   
   @OneToMany(
     () => Product,
-    (product) => product.store_id,
+    (product) => product.store,
   )
   products!: Product[];
 }

@@ -59,7 +59,7 @@ export class Product {
   @JoinColumn({
     name: 'STORE_ID',
   })
-  store_id!: number;
+  store!: Store;
 
   @Column({ name: 'IS_LIFE_FLOWER', type: 'number', width: 1, default: 1 })
   isLifeFlower!: boolean;

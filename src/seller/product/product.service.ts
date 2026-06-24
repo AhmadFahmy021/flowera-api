@@ -35,9 +35,10 @@ export class ProductService {
 
             const product = await this.productRepository.find({
                 where: {
-                    store_id: store.id
+                    store: {
+                        id: store.id
+                    }
                 }
-
             })            
 
             if (!product) {
@@ -85,7 +86,9 @@ export class ProductService {
                     isLifeFlower: dto.isLifeFlower,
                     price: dto.price,
                     sub_product_categories_id: sub_categories_id,
-                    store_id: store.id,
+                    store: {
+                        id: store.id
+                    },
                 }
             )
             // console.log(product);
