@@ -9,6 +9,7 @@ import { Store } from 'src/database/entities/store.entity';
 import { SlugHelper } from 'src/common/helpers/slug.helper';
 import { ProductImage } from 'src/database/entities/product-image.entity';
 import { MinioService } from 'src/common/services/minio.service';
+import { SubProductCategories } from 'src/database/entities/sub-product_categories.entity';
 
 @Injectable()
 export class ProductService {
@@ -19,6 +20,7 @@ export class ProductService {
         @InjectRepository(Product) private readonly productRepository: Repository<Product>,
         @InjectRepository(Store) private readonly storetRepository: Repository<Store>,
         @InjectRepository(ProductImage) private readonly productImageRepository: Repository<ProductImage>,
+        @InjectRepository(SubProductCategories) private readonly subProductCategoriesRepository: Repository<SubProductCategories>,
     ){}
 
     async getDataAll(seller_id: number){
@@ -59,6 +61,7 @@ export class ProductService {
     }
 
     async create(seller_id: number, dto: ProductCreateDto, sub_categories_id: number){
+        
         try {
             const seller = await this.sellerRepository.findOne({
                 where: {
@@ -76,6 +79,16 @@ export class ProductService {
 
             if (!store) {
                 throw new NotFoundException("Store is not found")
+            }
+
+            const sub_product_categories = await this.subProductCategoriesRepository.findOne({
+                where: {
+                    id: sub_categories_id
+                }
+            })
+            
+            if (!sub_product_categories) {
+                throw new NotFoundException("Sub product categories is not found")
             }
 
             const slug = SlugHelper.generateWithTimestamp(dto.name);    
@@ -96,7 +109,7 @@ export class ProductService {
                     },
                 }
             )
-            // console.log(product);
+            console.log(product);
             
             return {
                 status: "success",

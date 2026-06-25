@@ -19,9 +19,9 @@ export class ProductController {
   }
 
   @Post('create')
-  create(@Req() req, @Query('sub_categories') param, @Body() dto: ProductCreateDto){
+  create(@Req() req, @Body() dto: ProductCreateDto){
     const seller_id = req.user.sid;
-    return this.productService.create(seller_id, dto, param)
+    return this.productService.create(seller_id, dto, dto.sub_product_categories_id)
   }
   
   @Put('update')
