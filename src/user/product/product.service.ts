@@ -4,6 +4,7 @@ import { AddonProduct } from 'src/database/entities/addon-product.entity';
 import { ProductImage } from 'src/database/entities/product-image.entity';
 import { ProductVariant } from 'src/database/entities/product-variant.entity';
 import { Product } from 'src/database/entities/product.entity';
+import { ProducCategories } from 'src/database/entities/prouct-categories.entity';
 import { Store } from 'src/database/entities/store.entity';
 import { IsNull, Repository } from 'typeorm';
 
@@ -15,6 +16,7 @@ export class ProductService {
         @InjectRepository(ProductImage) private readonly productImagetRepository: Repository<ProductImage>,
         @InjectRepository(ProductVariant) private readonly productVariantRepository: Repository<ProductVariant>,
         @InjectRepository(AddonProduct) private readonly addonProductRepository: Repository<AddonProduct>,
+        @InjectRepository(ProducCategories) private readonly productCategoriesRepository: Repository<ProducCategories>,
     ){}
 
     async detailProduct(product_id: number){
@@ -78,5 +80,35 @@ export class ProductService {
         }
     }
 
-    async 
+    async getDataProductByCategories(product_categories_id: number){
+        try {
+            
+            const product_categories = await this.productCategoriesRepository.findOne({
+                where: {
+                    id: product_categories_id
+                }
+            })
+
+            if (!product_categories) {
+                throw new NotFoundException("Product categories is not found")
+            }
+
+            const product = await this.productRepository.find({
+                where: {
+                    sub_product_categories: {
+                        product_categories:{
+                            id: product_categories.id
+                        }
+                    }
+                },
+                relations: {
+                    sub_product_categories: true
+                }
+            })
+
+            return product
+        } catch (error) {
+            throw error;
+        }
+    }
 }

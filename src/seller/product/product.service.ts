@@ -8,13 +8,13 @@ import { RepositoryHelper } from 'src/common/helpers/repository.helper';
 import { Store } from 'src/database/entities/store.entity';
 import { SlugHelper } from 'src/common/helpers/slug.helper';
 import { ProductImage } from 'src/database/entities/product-image.entity';
-import { UploadService } from 'src/common/services/upload.service';
+import { MinioService } from 'src/common/services/minio.service';
 
 @Injectable()
 export class ProductService {
     constructor (
         private readonly repositoryHelper: RepositoryHelper,
-        private readonly uploadService: UploadService,
+        private readonly minioService: MinioService,
         @InjectRepository(Seller) private readonly sellerRepository: Repository<Seller>,
         @InjectRepository(Product) private readonly productRepository: Repository<Product>,
         @InjectRepository(Store) private readonly storetRepository: Repository<Store>,
@@ -88,7 +88,9 @@ export class ProductService {
                     description: dto.description,
                     isLifeFlower: dto.isLifeFlower,
                     price: dto.price,
-                    sub_product_categories_id: sub_categories_id,
+                    sub_product_categories: {
+                        id: sub_categories_id
+                    },
                     store: {
                         id: store.id
                     },
@@ -114,8 +116,7 @@ export class ProductService {
         product_id: number,
         files: Express.Multer.File[],
         defaultIndex?: number,
-    ){
-       
+    ) {
         const product =
             await this.productRepository.findOne({
                 where: {
@@ -129,24 +130,42 @@ export class ProductService {
             );
         }
 
+        if (
+            defaultIndex !== undefined ||
+            files.length > 0
+        ) {
+            await this.productImageRepository.update(
+                {
+                    product: {
+                        id: product_id,
+                    },
+                    isDefault: true,
+                },
+                {
+                    isDefault: false,
+                },
+            );
+        }
+
         const images: ProductImage[] = [];
 
         for (const [index, file] of files.entries()) {
-            const imagePath =
-                this.uploadService.generatePath(
+            console.log(file);
+            const uploaded =
+                await this.minioService.upload(
                     'products',
-                    file.filename,
+                    file,
                 );
 
             const image =
                 await this.repositoryHelper.createAndSave(
                     this.productImageRepository,
                     {
-                        image_url: imagePath,
+                        image_url: uploaded.path,
                         isDefault:
                             defaultIndex !== undefined
                                 ? index == defaultIndex
-                                : false,
+                                : index == 0, // file pertama jadi default
                         product: {
                             id: product.id,
                         },
@@ -158,7 +177,8 @@ export class ProductService {
 
         return {
             status: 'success',
-            message: "Upload image product is successfully",
+            message:
+                'Upload image product is successfully',
             total: images.length,
             data: images,
         };
@@ -246,6 +266,34 @@ export class ProductService {
                 throw new NotFoundException("Product is not found")
             }
 
+            const productImages =
+                await this.productImageRepository.find({
+                    where: {
+                        product: {
+                            id: product_id,
+                        },
+                    },
+                });
+
+            await Promise.all(
+                productImages.map((image) =>
+                    this.minioService.delete(
+                        image.image_url.replace(/^\//, ''),
+                    ),
+                ),
+            );
+            // console.log(productImages);
+
+            // for (const image of productImages) {
+            //     console.log(image.image_url);
+            // }
+
+            await this.productImageRepository.delete({
+                product: {
+                    id: product_id,
+                },
+            });
+
             await this.productRepository.delete({id: product_id})
 
             return {
@@ -253,7 +301,9 @@ export class ProductService {
                 message: "Product is successfully deleted"
             }
         } catch (error) {
-            
+            throw error;
         }
     }
+
+
 }

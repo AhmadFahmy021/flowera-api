@@ -6,7 +6,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadHelper } from '../helpers/upload.helper';
 
 export function UploadFiles(
-  folder: string,
+  folder?: string,
   field = 'files',
   maxCount = 10,
 ) {
@@ -16,10 +16,7 @@ export function UploadFiles(
         field,
         maxCount,
         {
-          storage:
-            UploadHelper.storage(
-              folder,
-            ),
+          storage: UploadHelper.storage(),
         },
       ),
     ),

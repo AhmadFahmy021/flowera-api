@@ -5,12 +5,11 @@ import { Roles } from 'src/guards/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { StoreCreateDto, StoreUpdateDto } from './store.dto';
 import { UploadFile } from 'src/common/decorators/upload-file.decorator';
-import { UploadService } from 'src/common/services/upload.service';
 
 @Controller('seller/store')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StoreController {
-  constructor(private readonly storeService: StoreService, private readonly uploadService: UploadService) {}
+  constructor(private readonly storeService: StoreService) {}
 
   @Post('create')
   create(@Req() req, @Body() dto: StoreCreateDto  ){

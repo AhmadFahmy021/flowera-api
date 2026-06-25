@@ -9,4 +9,9 @@ export class ProductController {
   getDetailProduct(@Param('productid') product_id: number){
     return this.productService.detailProduct(product_id);
   }
+
+  @Get('categories/:product_categories')
+  getProductByCategories(@Param("product_categories") product_categories_id: number){
+    return this.productService.getDataProductByCategories(product_categories_id)
+  }
 }

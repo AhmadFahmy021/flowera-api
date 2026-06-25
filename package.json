@@ -38,6 +38,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "jsonwebtoken": "^9.0.3",
+    "minio": "^8.0.7",
     "multer": "^2.2.0",
     "oracledb": "6.7.0",
     "passport": "^0.7.0",

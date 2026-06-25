@@ -50,7 +50,7 @@ export class Product {
     (subProductCategories) => subProductCategories.product,
   )
   @JoinColumn({ name: 'SUB_PRODUCT_CATEGORIES_ID' })
-  sub_product_categories_id!: number;
+  sub_product_categories!: SubProductCategories;
 
   @ManyToOne(
     () => Store,

@@ -26,6 +26,6 @@ export class ProducCategories {
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
 
-  @OneToMany(() => SubProductCategories, (subProductCategories) => subProductCategories.product_categories_id)
+  @OneToMany(() => SubProductCategories, (subProductCategories) => subProductCategories.product_categories)
   sub_product_categories!: SubProductCategories;
 }

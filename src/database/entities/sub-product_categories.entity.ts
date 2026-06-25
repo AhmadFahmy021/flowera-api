@@ -19,7 +19,7 @@ export class SubProductCategories {
 
   @ManyToOne(() => ProducCategories, (productCategories) => productCategories.sub_product_categories)
   @JoinColumn({ name: 'PRODUCT_CATEGORIES_ID' })
-  product_categories_id!: number;
+  product_categories!: ProducCategories;
 
   @Column({ name: 'TITLE', length: 150 })
   title!: string;
@@ -33,6 +33,6 @@ export class SubProductCategories {
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
 
-  @OneToMany(() => Product, (product) => product.sub_product_categories_id)
+  @OneToMany(() => Product, (product) => product.sub_product_categories)
   product!: Product;
 }

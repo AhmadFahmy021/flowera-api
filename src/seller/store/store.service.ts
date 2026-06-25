@@ -8,14 +8,14 @@ import { Store } from 'src/database/entities/store.entity';
 import slugify from 'slugify';
 import { SlugHelper } from 'src/common/helpers/slug.helper';
 import { RepositoryHelper } from 'src/common/helpers/repository.helper';
-import { UploadService } from 'src/common/services/upload.service';
 import { UploadHelper } from 'src/common/helpers/upload.helper';
+import { MinioService } from 'src/common/services/minio.service';
 
 @Injectable()
 export class StoreService {
     constructor(
         private readonly repositoryHelper: RepositoryHelper,
-        private readonly uploadService: UploadService,
+        private readonly minioService: MinioService,
         @InjectRepository(Seller) private readonly sellerRepository: Repository<Seller>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Store) private readonly storeRepository: Repository<Store>,
@@ -167,19 +167,23 @@ export class StoreService {
 
 
             if (store.logo) {
-                console.log("File ada di db");
-                
-                await UploadHelper.deleteFile(store.logo)
+                await this.minioService.delete(
+                    store.logo.replace(/^\//, ""),
+                );
             }
 
-            let logo: string = this.uploadService.generatePath('stores', file.filename)
+            const uploaded =await this.minioService.upload(
+                "stores",
+                file,
+            );
 
             await this.storeRepository.update(
-                {id: store.id},
+                { id: store.id },
                 {
-                    logo: logo
-                }
-            )
+                    // Simpan object name saja
+                    logo: uploaded.objectName,
+                },
+            );
 
             return {
                 status: "success",
@@ -209,7 +213,6 @@ export class StoreService {
                     }
                 },
             })
-            console.log(store);
             
             if (!store) {
                 throw new NotFoundException("Store is not found")
