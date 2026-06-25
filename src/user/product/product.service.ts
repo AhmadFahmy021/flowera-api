@@ -106,7 +106,10 @@ export class ProductService {
                 }
             })
 
-            return product
+            return {
+                status: "success",
+                data: product
+            }
         } catch (error) {
             throw error;
         }
