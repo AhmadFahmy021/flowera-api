@@ -48,6 +48,10 @@ lerna-debug.log*
 
 # Runtime data
 pids
+
+# Lock files (gunakan pnpm-lock.yaml saja)
+package-lock.json
+bun.lock
 *.pid
 *.seed
 *.pid.lock
