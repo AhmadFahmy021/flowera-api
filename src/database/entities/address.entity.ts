@@ -26,11 +26,11 @@ export class Address {
   @Column({ name: 'NO_HP', length: 50 })
   no_hp!: string;
 
-  @Column({ name: 'ADDRESS', type: 'blob' })
+  @Column({ name: 'ADDRESS', type: 'clob' })
   address!: string;
 
-  @Column({ name: 'NOTE', type: 'blob' })
-  note!: string;
+  @Column({ name: 'NOTE', type: 'clob', nullable: true })
+  note?: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;
