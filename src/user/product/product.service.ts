@@ -49,7 +49,8 @@ export class ProductService {
                 },
                 relations:{
                     product_image: true
-                }
+                },
+                order: {id: "ASC"}
             })
 
             const addon_product = await this.addonProductRepository.find({
@@ -63,7 +64,8 @@ export class ProductService {
                 },
                 relations: {
                     product_image: true
-                }
+                },
+                order: {id: "ASC"}
             })
 
 

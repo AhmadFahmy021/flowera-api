@@ -86,7 +86,7 @@ export class ProductService {
                     id: sub_categories_id
                 }
             })
-            
+
             if (!sub_product_categories) {
                 throw new NotFoundException("Sub product categories is not found")
             }
@@ -109,7 +109,6 @@ export class ProductService {
                     },
                 }
             )
-            console.log(product);
             
             return {
                 status: "success",
@@ -119,7 +118,7 @@ export class ProductService {
                     name: product.name,
                     slug: product.slug,
                 }
-            }
+            } 
         } catch (error) {
             throw error;
         }
@@ -163,7 +162,6 @@ export class ProductService {
         const images: ProductImage[] = [];
 
         for (const [index, file] of files.entries()) {
-            console.log(file);
             const uploaded =
                 await this.minioService.upload(
                     'products',

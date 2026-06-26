@@ -20,7 +20,7 @@ export class AddonProduct {
   id!: number;
 
   @Column({ name: 'TITLE', type: 'varchar2', length: 150 })
-  title!: number;
+  title!: string;
 
   @Column({ name: 'PRICE', type: 'number' })
   price!: number;
