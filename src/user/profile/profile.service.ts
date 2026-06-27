@@ -49,7 +49,15 @@ export class ProfileService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Profile is not found');
+      return {
+        status: 'success',
+        data: {
+          birth_place: null,
+          birth_date: null,
+          gender: null,
+          no_hp: null,
+        },
+      };
     }
 
     return {
