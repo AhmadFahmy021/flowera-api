@@ -9,16 +9,17 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 import { Profile } from './profile.entity';
 
 @Entity({ name: 'ADDRESS' })
 export class Address {
   @PrimaryGeneratedColumn({ name: 'ID' })
-  id!: string;
+  id!: number;
 
   @ManyToOne(() => Profile, (profile) => profile.address)
   @JoinColumn({ name: 'PROFILE_ID' })
-  profile_id!: string;
+  profile_id!: Profile;
 
   @Column({ name: 'NAMA_PENERIMA', type: 'varchar2', length: 150 })
   nama_penerima!: string;
@@ -29,8 +30,8 @@ export class Address {
   @Column({ name: 'ADDRESS', type: 'clob' })
   address!: string;
 
-  @Column({ name: 'NOTE', type: 'clob', nullable: true })
-  note?: string;
+  @Column({ name: 'NOTE', type: 'clob' })
+  note!: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;

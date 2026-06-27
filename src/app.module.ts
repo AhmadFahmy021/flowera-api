@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SellerModule } from './seller/seller.module';
 import { AdminModule } from './admin/admin.module';
+import { AddressModule } from './address/address.module';
+
 import { GuardsModule } from './guards/guards.module';
 
 @Module({
@@ -20,6 +22,7 @@ import { GuardsModule } from './guards/guards.module';
     AuthModule,
     SellerModule,
     AdminModule,
+    AddressModule,
     GuardsModule
   ],
   controllers: [AppController],
