@@ -4,6 +4,7 @@ import { UserController } from './user.controller';
 import { HomeModule } from './home/home.module';
 import { ProductModule } from './product/product.module';
 import { ProfileModule } from './profile/profile.module';
+import { AddressModule } from '../address/address.module';
 
 @Module({
   controllers: [UserController],
@@ -12,6 +13,8 @@ import { ProfileModule } from './profile/profile.module';
     HomeModule,
     ProductModule,
     ProfileModule,
-  ],
+    AddressModule,
+  ]
 })
 export class UserModule {}
+
