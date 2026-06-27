@@ -19,13 +19,13 @@ export class Profile {
 
   @ManyToOne(() => User, (user) => user.profile)
   @JoinColumn({ name: 'USER_ID' })
-  user_id!: number;
+  user_id!: User;
 
   @Column({ name: 'BIRTH_PLACE', type: 'varchar2' })
   birth_place!: string;
 
   @Column({ name: 'BIRTH_DATE', type: 'date' })
-  birt_date!: Date;
+  birth_date!: Date;
 
   @Column({ name: 'GENDER', type: 'varchar2', length: 50 })
   gender!: string;
