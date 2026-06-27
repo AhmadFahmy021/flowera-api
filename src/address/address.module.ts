@@ -10,6 +10,7 @@ import { Address } from 'src/database/entities/address.entity';
 
 import { CommonModule } from 'src/common/common.module';
 import { Seller } from 'src/database/entities/seller.entity';
+import { GuardsModule } from 'src/guards/guards.module';
 
 @Module({
   controllers: [AddressController],
@@ -22,6 +23,7 @@ import { Seller } from 'src/database/entities/seller.entity';
       Seller,
     ]),
     CommonModule,
+    GuardsModule
   ],
 })
 export class AddressModule {}
