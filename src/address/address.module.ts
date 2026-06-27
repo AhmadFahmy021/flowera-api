@@ -9,8 +9,8 @@ import { Profile } from 'src/database/entities/profile.entity';
 import { Address } from 'src/database/entities/address.entity';
 
 import { CommonModule } from 'src/common/common.module';
-import { Seller } from 'src/database/entities/seller.entity';
 import { GuardsModule } from 'src/guards/guards.module';
+import { Seller } from 'src/database/entities/seller.entity';
 
 @Module({
   controllers: [AddressController],
@@ -20,10 +20,9 @@ import { GuardsModule } from 'src/guards/guards.module';
       User,
       Profile,
       Address,
-      Seller,
     ]),
     CommonModule,
-    GuardsModule
+    GuardsModule,
   ],
 })
-export class AddressModule {}
+export class AddressModule { }
