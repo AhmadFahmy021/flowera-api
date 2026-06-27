@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GuardsModule } from 'src/guards/guards.module';
 
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
@@ -15,11 +16,12 @@ import { CommonModule } from 'src/common/common.module';
   providers: [ProfileService],
   imports: [
     TypeOrmModule.forFeature([
-        User,
-        Profile,
-        Seller,
+      User,
+      Profile,
+      Seller,
     ]),
     CommonModule,
+    GuardsModule,
   ],
 })
 export class ProfileModule {}
