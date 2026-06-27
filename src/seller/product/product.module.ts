@@ -8,6 +8,7 @@ import { CommonModule } from 'src/common/common.module';
 import { Store } from 'src/database/entities/store.entity';
 import { ProductImage } from 'src/database/entities/product-image.entity';
 import { SubProductCategories } from 'src/database/entities/sub-product_categories.entity';
+import { GuardsModule } from 'src/guards/guards.module';
 
 @Module({
   controllers: [ProductController],
@@ -15,6 +16,7 @@ import { SubProductCategories } from 'src/database/entities/sub-product_categori
   imports: [
     CommonModule,
     TypeOrmModule.forFeature([Product, Seller, Store, ProductImage, SubProductCategories]),
+    GuardsModule
   ]
 })
 export class ProductModule {}

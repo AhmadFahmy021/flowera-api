@@ -9,22 +9,21 @@ import { ROLES_KEY } from './roles.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Seller } from 'src/database/entities/seller.entity';
+import { Admin } from 'src/database/entities/admin.entity';
+import { RoleService } from './roles.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
-    @InjectRepository(Seller) private sellerRepository: Repository<Seller>,
+    private readonly reflector: Reflector,
+    private readonly roleService: RoleService,
   ) {}
 
   async canActivate(
     context: ExecutionContext,
   ): Promise<boolean> {
-
     const requiredRoles =
-      this.reflector.getAllAndOverride<
-        string[]
-      >(
+      this.reflector.getAllAndOverride<string[]>(
         ROLES_KEY,
         [
           context.getHandler(),
@@ -46,18 +45,13 @@ export class RolesGuard implements CanActivate {
     }
 
     for (const role of requiredRoles) {
-
       switch (role.toLowerCase()) {
 
         case 'seller': {
           const seller =
-            await this.sellerRepository.findOne({
-              where: {
-                user: {
-                  id: user.uid,
-                }
-              },
-            });
+            await this.roleService.isSeller(
+              user.uid,
+            );
 
           if (seller) {
             user.sid = seller.id;
@@ -68,20 +62,21 @@ export class RolesGuard implements CanActivate {
         }
 
         case 'admin': {
-          if (
-            user.roles?.includes(
-              'admin',
-            )
-          ) {
+          const admin =
+            await this.roleService.isAdmin(
+              user.uid,
+            );
+
+          if (admin) {
+            user.aid = admin.id;
             return true;
           }
 
           break;
         }
 
-        case 'user': {
+        case 'user':
           return true;
-        }
       }
     }
 

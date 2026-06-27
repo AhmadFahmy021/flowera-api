@@ -8,13 +8,15 @@ import { Product } from 'src/database/entities/product.entity';
 import { CommonModule } from 'src/common/common.module';
 import { ProductImage } from 'src/database/entities/product-image.entity';
 import { Seller } from 'src/database/entities/seller.entity';
+import { GuardsModule } from 'src/guards/guards.module';
 
 @Module({
   controllers: [ProductVariantController],
   providers: [ProductVariantService],
   imports: [
     TypeOrmModule.forFeature([ProductVariant, Store, Product, ProductImage, Seller]),
-    CommonModule
+    CommonModule,
+    GuardsModule
   ]
 })
 export class ProductVariantModule {}
