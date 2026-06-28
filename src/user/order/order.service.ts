@@ -312,6 +312,15 @@ export class OrderService {
       0,
     );
 
+    const address = await this.addressRepository.findOne({
+      where: {
+          id: dto.address_id,
+      },
+    });
+
+  if (!address) {
+  throw new NotFoundException("Address not found");
+  }
     const total =
       itemsTotal +
       shippingTotal -
@@ -344,6 +353,7 @@ export class OrderService {
           total,
           note: dto.note,
           isCustomerConfirmed: 'NOT_CONFIRMED',
+          address: address
         });
 
         await manager.save(order);
@@ -453,8 +463,6 @@ export class OrderService {
             items: itemDetails,
 
         });
-
-
 
         payment.transaction_id =
             midtrans.transaction_id;

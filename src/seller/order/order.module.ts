@@ -10,12 +10,13 @@ import { OrderImageConfirmed } from 'src/database/entities/order-image-confirmed
 
 import { CommonModule } from 'src/common/common.module';
 import { GuardsModule } from 'src/guards/guards.module';
+import { Store } from 'src/database/entities/store.entity';
 
 @Module({
   controllers: [SellerOrderController],
   providers: [OrderService],
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, OrderImageConfirmed]),
+    TypeOrmModule.forFeature([Order, OrderItem, OrderImageConfirmed, Store]),
     CommonModule,
     GuardsModule,
   ],

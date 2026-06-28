@@ -13,6 +13,7 @@ import { OrderImageConfirmed } from 'src/database/entities/order-image-confirmed
 
 import { MinioService } from 'src/common/services/minio.service';
 import { UpdateOrderStatusDto } from './order.dto';
+import { Store } from 'src/database/entities/store.entity';
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   UNPAID: ['CONFIRM_SELLER'],
@@ -36,17 +37,98 @@ export class OrderService {
 
     @InjectRepository(OrderImageConfirmed)
     private readonly imageRepository: Repository<OrderImageConfirmed>,
+
+    @InjectRepository(Store)
+    private readonly storeRepository: Repository<Store>,
   ) {}
 
   // ─────────────────────────────────────
   // Get Orders by Store
   // ─────────────────────────────────────
-  async findAllByStore(storeId: number) {
+  async findAllByStore(seller_id: number) {
+    const store = await this.storeRepository.findOne({
+        where: {
+            seller: {
+                id: seller_id
+            }
+        }
+    })
+    if (!store) {
+        throw new NotFoundException("Store not found")
+    }
+    // const orderItems = await this.orderItemRepository.find({
+    //   where: { store_id: { id: store?.id } },
+    //   select: {
+    //     order_id: {
+    //         user_id: {
+    //             name: true
+    //         }
+    //     }
+    //   },
+    //   relations: ['order_id', 'order_id.user_id', 'product_id', 'product_variant_id'],
+    //   order: { createdAt: 'DESC' },
+    // });
+
     const orderItems = await this.orderItemRepository.find({
-      where: { store_id: { id: storeId } },
-      relations: ['order_id', 'order_id.user_id', 'product_id', 'product_variant_id'],
-      order: { createdAt: 'DESC' },
-    });
+        where: {
+            store_id: {
+            id: store.id,
+            },
+        },
+        relations: [
+            "order_id",
+            "order_id.user_id",
+            "product_id",
+            "product_variant_id",
+            "order_id.address",
+            // "address"
+        ],
+        select: {
+            id: true,
+
+            order_id: {
+                id: true,
+                orderNumber: true,
+                status: true,
+                total: true,
+                createdAt: true,
+
+                user_id: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+                address: {
+                    nama_penerima: true,
+                    no_hp: true,
+                    address: true,
+                    note: true,
+                    province_name: true,
+                    city_name: true,
+                    district_name: true,
+                    subdistrict_name: true,
+                    zip_code: true,
+                    subdistrict_id: true,
+                }
+            },
+
+            product_id: {
+            id: true,
+            name: true,
+            price: true,
+            },
+
+            product_variant_id: {
+            id: true,
+            title: true,
+            price: true,
+            },
+
+            quantity: true,
+            price: true,
+            subTotal: true,
+        },
+        });
 
     const orderMap = new Map<number, any>();
     for (const item of orderItems) {

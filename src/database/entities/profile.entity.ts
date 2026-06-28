@@ -43,5 +43,5 @@ export class Profile {
   deletedAt?: Date | null;
 
   @OneToMany(() => Address, (address) => address.profile_id)
-  address!: Address;
+  address!: Address[];
 }

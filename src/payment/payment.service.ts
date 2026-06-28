@@ -21,6 +21,7 @@ import { PaymentOrder } from 'src/database/entities/payment-order.entity';
 import { Repository } from 'typeorm';
 import { Order } from 'src/database/entities/order.entity';
 import * as crypto from "crypto";
+import { OrderItem } from 'src/database/entities/order-item.entity';
 
 @Injectable()
 export class PaymentService {
@@ -28,7 +29,8 @@ export class PaymentService {
   constructor(
     private readonly config: ConfigService,
     @InjectRepository(PaymentOrder) private readonly paymentOrderRepository: Repository<PaymentOrder>,
-    @InjectRepository(Order) private readonly orderRepository: Repository<Order>
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OrderItem) private readonly orderItemRepository: Repository<OrderItem>
   ) {}
 
   async createQRIS(
@@ -197,7 +199,7 @@ export class PaymentService {
         payment.order_id.status = "FAILED";
         break;
     }
-
+    
     await this.paymentOrderRepository.save(payment);
 
     await this.orderRepository.save(payment.order_id);

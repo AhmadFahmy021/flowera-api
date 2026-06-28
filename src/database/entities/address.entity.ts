@@ -5,11 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Profile } from './profile.entity';
+import { Order } from './order.entity';
 
 @Entity({ name: 'ADDRESS' })
 export class Address {
@@ -59,4 +61,7 @@ export class Address {
 
   @DeleteDateColumn({ name: 'DELETED_AT' })
   deletedAt?: Date | null;
+
+  @OneToMany(() => Order, (order) => order.address)
+  orders!: Order[];
 }

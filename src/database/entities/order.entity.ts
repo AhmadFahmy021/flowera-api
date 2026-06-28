@@ -15,6 +15,7 @@ import { OrderImageConfirmed } from './order-image-confirmed.entity';
 import { OrderItem } from './order-item.entity';
 import { PaymentOrder } from './payment-order.entity';
 import { Review } from './review.entity';
+import { Address } from './address.entity';
 
 @Entity({ name: 'ORDER' })
 export class Order {
@@ -24,6 +25,14 @@ export class Order {
   @ManyToOne(() => User, (user) => user.order)
   @JoinColumn({ name: 'USER_ID' })
   user_id!: User;
+
+  @ManyToOne(() => Address, (address) => address.orders, {
+    nullable: true,
+  })
+  @JoinColumn({
+    name: "ADDRESS_ID",
+  })
+  address!: Address;
 
   @Column({ name: 'ORDER_NUMBER', type: 'varchar2', length: 150 })
   orderNumber!: string;
