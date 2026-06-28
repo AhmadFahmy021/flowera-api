@@ -101,6 +101,7 @@ export class ProductService {
                     description: dto.description,
                     isLifeFlower: dto.isLifeFlower,
                     price: dto.price,
+                    weight: dto.weight,
                     sub_product_categories: {
                         id: sub_categories_id
                     },

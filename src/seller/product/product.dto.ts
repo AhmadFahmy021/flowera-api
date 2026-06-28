@@ -21,6 +21,12 @@ export class ProductCreateDto{
     @IsNumber()
     @IsNotEmpty()
     sub_product_categories_id!: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    weight!: number;
+
+
 }
 
 export class ProductUpdateDto extends PartialType(ProductCreateDto){}
