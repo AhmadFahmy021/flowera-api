@@ -27,12 +27,15 @@ export class ProfileService {
   ) {}
 
   async detail(userId: number) {
-    const user = await this.userRepository.exists({
+    const user = await this.userRepository.findOne({
       where: {
         id: userId,
       },
       select: {
         id: true,
+        name: true,
+        email: true,
+        phone_number: true,
       },
     });
 
@@ -49,12 +52,24 @@ export class ProfileService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Profile is not found');
+      return {
+        status: 'success',
+        data: {
+          birth_place: null,
+          birth_date: null,
+          gender: null,
+          no_hp: user.phone_number || null,
+        },
+      };
     }
 
     return {
       status: 'success',
-      data: profile,
+      data: {
+        ...profile,
+        // Jika no_hp di PROFILE kosong, fallback ke phone_number di USERS
+        no_hp: profile.no_hp || user.phone_number || null,
+      },
     };
   }
 
