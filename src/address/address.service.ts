@@ -30,37 +30,47 @@ export class AddressService {
     ) { }
 
     async create(userId: number, dto: AddressCreateDto) {
-        try {
-            const user = await this.userRepository.exists({
-                where: { id: userId },
-            });
-            if (!user) throw new NotFoundException('User is not found');
+        const user = await this.userRepository.exists({
+            where: { id: userId },
+        });
+        if (!user) throw new NotFoundException('User is not found');
 
-            const profile = await this.profileRepository.findOne({
-                where: { user_id: { id: userId } },
-            });
-            if (!profile) throw new BadRequestException('Please complete your profile first');
+        let profile = await this.profileRepository.findOne({
+            where: { user_id: { id: userId } },
+        });
 
-            await this.repositoryHelper.createAndSave(
-                this.addressRepository,
+        // Auto-create profile if not exists
+        if (!profile) {
+            profile = await this.repositoryHelper.createAndSave(
+                this.profileRepository,
                 {
-                    profile_id: { id: profile.id },
-                    nama_penerima: dto.nama_penerima,
-                    no_hp: dto.no_hp,
-                    address: dto.address,
-                    note: dto.note ?? undefined,
-                    province_name: dto.province_name ?? undefined,
-                    city_name: dto.city_name ?? undefined,
-                    district_name: dto.district_name ?? undefined,
-                    subdistrict_name: dto.subdistrict_name ?? undefined,
-                    zip_code: dto.zip_code ?? undefined
+                    user_id: { id: userId },
+                    birth_place: '-',
+                    birth_date: new Date(),
+                    gender: '-',
+                    no_hp: '-',
                 },
             );
-
-            return { status: 'success', message: 'Address successfully created' };
-        } catch (error) {
-            throw error;
         }
+
+        await this.repositoryHelper.createAndSave(
+            this.addressRepository,
+            {
+                profile_id: { id: profile.id },
+                nama_penerima: dto.nama_penerima,
+                no_hp: dto.no_hp,
+                address: dto.address,
+                note: dto.note ?? undefined,
+                province_name: dto.province_name ?? undefined,
+                city_name: dto.city_name ?? undefined,
+                district_name: dto.district_name ?? undefined,
+                subdistrict_name: dto.subdistrict_name ?? undefined,
+                zip_code: dto.zip_code ?? undefined,
+                subdistrict_id: dto.subdistrict_id ?? undefined,
+            },
+        );
+
+        return { status: 'success', message: 'Address successfully created' };
     }
 
     async findAll(userId: number) {
