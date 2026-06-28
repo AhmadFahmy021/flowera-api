@@ -80,11 +80,11 @@ export class User {
   @OneToMany(() => Order, (order) => order.user_id)
   order!: number;
 
-  @OneToOne(
+  @OneToMany(
     () => OrderImageConfirmed,
     (orderImageConfirmed) => orderImageConfirmed.user_id,
   )
-  order_image_confirmed!: OrderImageConfirmed;
+  order_image_confirmed!: OrderImageConfirmed[];
 
   @OneToOne(() => Review, (review) => review.user_id)
   review!: Review;

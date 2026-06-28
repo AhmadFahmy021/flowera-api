@@ -32,46 +32,32 @@ export class AddressService {
     async create(userId: number, dto: AddressCreateDto) {
         try {
             const user = await this.userRepository.exists({
-                where: {
-                    id: userId,
-                },
+                where: { id: userId },
             });
-
-            if (!user) {
-                throw new NotFoundException('User is not found');
-            }
+            if (!user) throw new NotFoundException('User is not found');
 
             const profile = await this.profileRepository.findOne({
-                where: {
-                    user_id: {
-                        id: userId,
-                    },
-                },
+                where: { user_id: { id: userId } },
             });
-
-            if (!profile) {
-                throw new BadRequestException(
-                    'Please complete your profile first',
-                );
-            }
+            if (!profile) throw new BadRequestException('Please complete your profile first');
 
             await this.repositoryHelper.createAndSave(
                 this.addressRepository,
                 {
-                    profile_id: {
-                        id: profile.id,
-                    },
+                    profile_id: { id: profile.id },
                     nama_penerima: dto.nama_penerima,
                     no_hp: dto.no_hp,
                     address: dto.address,
-                    note: dto.note,
+                    note: dto.note ?? undefined,
+                    province_name: dto.province_name ?? undefined,
+                    city_name: dto.city_name ?? undefined,
+                    district_name: dto.district_name ?? undefined,
+                    subdistrict_name: dto.subdistrict_name ?? undefined,
+                    zip_code: dto.zip_code ?? undefined
                 },
             );
 
-            return {
-                status: 'success',
-                message: 'Address successfully created',
-            };
+            return { status: 'success', message: 'Address successfully created' };
         } catch (error) {
             throw error;
         }
@@ -79,63 +65,35 @@ export class AddressService {
 
     async findAll(userId: number) {
         const profile = await this.profileRepository.findOne({
-            where: {
-                user_id: {
-                    id: userId,
-                },
-            },
+            where: { user_id: { id: userId } },
         });
-
-        if (!profile) {
-            throw new NotFoundException('Profile is not found');
-        }
+        if (!profile) throw new NotFoundException('Profile is not found');
 
         const addresses = await this.addressRepository.find({
-            where: {
-                profile_id: {
-                    id: profile.id,
-                },
-            },
-            order: {
-                createdAt: 'DESC',
-            },
+            where: { profile_id: { id: profile.id } },
+            order: { createdAt: 'DESC' },
         });
 
         return {
             status: 'success',
-            data: addresses,
+            data: addresses.map((a) => this.formatAddress(a)),
         };
     }
 
     async findOne(userId: number, id: string) {
         const profile = await this.profileRepository.findOne({
-            where: {
-                user_id: {
-                    id: userId,
-                },
-            },
+            where: { user_id: { id: userId } },
         });
-
-        if (!profile) {
-            throw new NotFoundException('Profile is not found');
-        }
+        if (!profile) throw new NotFoundException('Profile is not found');
 
         const address = await this.addressRepository.findOne({
-            where: {
-                id: Number(id),
-                profile_id: {
-                    id: profile.id,
-                },
-            },
+            where: { id: Number(id), profile_id: { id: profile.id } },
         });
-
-        if (!address) {
-            throw new NotFoundException('Address is not found');
-        }
+        if (!address) throw new NotFoundException('Address is not found');
 
         return {
             status: 'success',
-            data: address,
+            data: this.formatAddress(address),
         };
     }
 
@@ -182,7 +140,7 @@ export class AddressService {
     async remove(userId: number, id: string) {
         const profile = await this.profileRepository.findOne({
             where: {
-                user_id: {
+                user_id: {  
                     id: userId,
                 },
             },
@@ -210,6 +168,38 @@ export class AddressService {
         return {
             status: 'success',
             message: 'Address successfully deleted',
+        };
+    }
+
+    // ─────────────────────────────────────
+    // Format address like RajaOngkir response
+    // ─────────────────────────────────────
+    private formatAddress(a: any) {
+        const label = [
+            a.subdistrict_name,
+            a.district_name,
+            a.city_name,
+            a.province_name,
+            a.zip_code,
+        ]
+            .filter(Boolean)
+            .join(', ');
+
+        return {
+            id: a.id,
+            label: label || null,
+            nama_penerima: a.nama_penerima,
+            no_hp: a.no_hp,
+            address: a.address,
+            note: a.note,
+            province_name: a.province_name,
+            city_name: a.city_name,
+            district_name: a.district_name,
+            subdistrict_name: a.subdistrict_name,
+            zip_code: a.zip_code,
+            subdistrict_id: a.subdistrict_id,
+            created_at: a.createdAt,
+            updated_at: a.updatedAt,
         };
     }
 }

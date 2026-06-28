@@ -5,7 +5,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -30,8 +29,27 @@ export class Address {
   @Column({ name: 'ADDRESS', type: 'clob' })
   address!: string;
 
-  @Column({ name: 'NOTE', type: 'clob' })
-  note!: string;
+  @Column({ name: 'NOTE', type: 'clob', nullable: true })
+  note?: string;
+
+  // Regional fields (compatible with RajaOngkir / api-regional-indonesia)
+  @Column({ name: 'PROVINCE_NAME', type: 'varchar2', length: 200, nullable: true })
+  province_name?: string;
+
+  @Column({ name: 'CITY_NAME', type: 'varchar2', length: 200, nullable: true })
+  city_name?: string;
+
+  @Column({ name: 'DISTRICT_NAME', type: 'varchar2', length: 200, nullable: true })
+  district_name?: string;
+
+  @Column({ name: 'SUBDISTRICT_NAME', type: 'varchar2', length: 200, nullable: true })
+  subdistrict_name?: string;
+
+  @Column({ name: 'ZIP_CODE', type: 'varchar2', length: 10, nullable: true })
+  zip_code?: string;
+
+  @Column({ name: 'SUBDISTRICT_ID', type: 'varchar2', length: 20, nullable: true })
+  subdistrict_id?: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;

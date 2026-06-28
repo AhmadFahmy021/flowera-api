@@ -4,8 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  OneToMany,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,26 +16,25 @@ export class OrderImageConfirmed {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @OneToOne(() => User, (user) => user.order_image_confirmed)
+  @ManyToOne(() => User, (user) => user.order_image_confirmed)
   @JoinColumn({ name: 'USER_ID' })
-  user_id!: number;
+  user_id!: User;
 
-  @OneToOne(() => Order, (order) => order.order_image_confirmed)
+  @ManyToOne(() => Order, (order) => order.order_image_confirmed)
   @JoinColumn({ name: 'ORDER_ID' })
-  order_id!: number;
-
-  //@OneToMany(() => User, (user) => user.order)
-  //@JoinColumn({name: "USER_ID"})
-  //user_id!: number;
+  order_id!: Order;
 
   @Column({ name: 'IMAGE_URL', type: 'varchar2', length: 255 })
   image_url!: string;
 
-  @Column({ name: 'NOTE', type: 'varchar2', length: 160 })
-  note!: string;
+  @Column({ name: 'NOTE', type: 'varchar2', length: 500, nullable: true })
+  note?: string;
 
-  // @Column({ name: 'nameTable' })
-  // nameTable!: Date;
+  @Column({ name: 'REPLY_NOTE', type: 'varchar2', length: 500, nullable: true })
+  reply_note?: string;
+
+  @Column({ name: 'STATUS', type: 'varchar2', length: 50, default: 'PENDING' })
+  status!: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;

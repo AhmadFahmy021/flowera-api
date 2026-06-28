@@ -4,8 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  OneToMany,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,41 +18,49 @@ export class OrderItem {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  // @OneToOne(() => User, (user) => user.order)
-  // @JoinColumn({name: "USER_ID"})
-  // user_id!: number;
-
-  //@OneToMany(() => User, (user) => user.order)
-  //@JoinColumn({name: "USER_ID"})
-  //user_id!: number;
-
   @Column({ name: 'QUANTITY', type: 'number' })
   quantity!: number;
 
-  @Column({ name: 'DISSCOUNT', type: 'number' })
-  disscount!: number;
+  @Column({ name: 'PRICE', type: 'number', nullable: true })
+  price?: number;
 
-  @OneToOne(() => Product, (product) => product.order_item)
+  @Column({ name: 'SUB_TOTAL', type: 'number', nullable: true })
+  subTotal?: number;
+
+  @Column({ name: 'DISCOUNT', type: 'number' })
+  discount!: number;
+
+  // Shipping / expedisi fields (per item, per store)
+  @Column({ name: 'COURIER_NAME', type: 'varchar2', length: 100, nullable: true })
+  courier_name?: string;
+
+  @Column({ name: 'COURIER_SERVICE', type: 'varchar2', length: 100, nullable: true })
+  courier_service?: string;
+
+  @Column({ name: 'SHIPPING_COST', type: 'number', nullable: true })
+  shipping_cost?: number;
+
+  @Column({ name: 'SHIPPING_ETD', type: 'varchar2', length: 50, nullable: true })
+  shipping_etd?: string;
+
+  @ManyToOne(() => Product, (product) => product.order_item)
   @JoinColumn({ name: 'PRODUCT_ID' })
-  product_id!: number;
+  product_id!: Product;
 
-  @Column({ name: 'ADDON_PRODUCT', type: 'clob' })
-  addon_product!: string;
+  @Column({ name: 'ADDON_PRODUCT', type: 'clob', nullable: true })
+  addon_product?: string;
 
-  @OneToOne(() => ProductVariant, (productVariant) => productVariant.order_item)
+  @ManyToOne(() => ProductVariant, (productVariant) => productVariant.order_item, { nullable: true })
   @JoinColumn({ name: 'PRODUCT_VARIANT_ID' })
-  product_variant_id!: number;
+  product_variant_id?: ProductVariant;
 
-  @OneToOne(() => Order, (order) => order.order_item)
+  @ManyToOne(() => Order, (order) => order.order_item)
   @JoinColumn({ name: 'ORDER_ID' })
-  order_id!: number;
+  order_id!: Order;
 
-  @OneToOne(() => Store, (store) => store.order_item)
+  @ManyToOne(() => Store, (store) => store.order_item)
   @JoinColumn({ name: 'STORE_ID' })
-  store_id!: number;
-
-  // @Column({ name: 'nameTable' })
-  // nameTable!: Date;
+  store_id!: Store;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;

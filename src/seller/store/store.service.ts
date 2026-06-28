@@ -73,6 +73,12 @@ export class StoreService {
                     city: dto.city,
                     type: dto.type,
                     address: dto.address,
+                    province_name: dto.province_name ?? undefined,
+                    city_name: dto.city_name ?? undefined,
+                    district_name: dto.district_name ?? undefined,
+                    subdistrict_name: dto.subdistrict_name ?? undefined,
+                    zip_code: dto.zip_code ?? undefined,
+                    subdistrict_id: dto.subdistrict_id ?? undefined,
                     seller: {id: seller.id}
                 }
             )

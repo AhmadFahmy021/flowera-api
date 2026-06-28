@@ -55,6 +55,25 @@ export class Store {
   @Column({ name: 'CITY', type: 'varchar2', length: 200 })
   city!: string;
 
+  // Regional fields (matching Address pattern)
+  @Column({ name: 'PROVINCE_NAME', type: 'varchar2', length: 200, nullable: true })
+  province_name?: string;
+
+  @Column({ name: 'CITY_NAME', type: 'varchar2', length: 200, nullable: true })
+  city_name?: string;
+
+  @Column({ name: 'DISTRICT_NAME', type: 'varchar2', length: 200, nullable: true })
+  district_name?: string;
+
+  @Column({ name: 'SUBDISTRICT_NAME', type: 'varchar2', length: 200, nullable: true })
+  subdistrict_name?: string;
+
+  @Column({ name: 'ZIP_CODE', type: 'varchar2', length: 10, nullable: true })
+  zip_code?: string;
+
+  @Column({ name: 'SUBDISTRICT_ID', type: 'varchar2', length: 20, nullable: true })
+  subdistrict_id?: string;
+
   @Column({ name: 'DATEONLINELAST', type: 'date', nullable: true })
   dateOnlineLast!: Date;
 
@@ -70,8 +89,8 @@ export class Store {
   @OneToMany(() => FaqStore, (faqStore) => faqStore.store)
   faq_store!: number;
 
-  @OneToOne(() => OrderItem, (orderItem) => orderItem.store_id)
-  order_item!: OrderItem;
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.store_id)
+  order_item!: OrderItem[];
 
   @OneToOne(() => Discount, (discount) => discount.store_id)
   discount!: OrderItem;

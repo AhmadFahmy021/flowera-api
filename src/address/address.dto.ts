@@ -20,6 +20,31 @@ export class AddressCreateDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  // Regional fields
+  @IsString()
+  @IsOptional()
+  province_name?: string;
+
+  @IsString()
+  @IsOptional()
+  city_name?: string;
+
+  @IsString()
+  @IsOptional()
+  district_name?: string;
+
+  @IsString()
+  @IsOptional()
+  subdistrict_name?: string;
+
+  @IsString()
+  @IsOptional()
+  zip_code?: string;
+
+  @IsString()
+  @IsOptional()
+  subdistrict_id?: string;
 }
 
 export class AddressUpdateDto {
@@ -38,4 +63,28 @@ export class AddressUpdateDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  @IsString()
+  @IsOptional()
+  province_name?: string;
+
+  @IsString()
+  @IsOptional()
+  city_name?: string;
+
+  @IsString()
+  @IsOptional()
+  district_name?: string;
+
+  @IsString()
+  @IsOptional()
+  subdistrict_name?: string;
+
+  @IsString()
+  @IsOptional()
+  zip_code?: string;
+
+  @IsString()
+  @IsOptional()
+  subdistrict_id?: string;
 }

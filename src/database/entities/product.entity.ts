@@ -67,6 +67,9 @@ export class Product {
   @Column({ name: 'PRICE', type: 'number' })
   price!: number;
 
+  @Column({ name: 'WEIGHT', type: 'number', nullable: true, default: 0 })
+  weight?: number;
+
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;
 
@@ -97,8 +100,8 @@ export class Product {
   @OneToMany(() => Cart, (cart) => cart.user_id)
   cart!: number;
 
-  @OneToOne(() => OrderItem, (orderItem) => orderItem.product_id)
-  order_item!: OrderItem;
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product_id)
+  order_item!: OrderItem[];
 
   @OneToOne(() => Discount, (discount) => discount.product_id)
   discount!: OrderItem;

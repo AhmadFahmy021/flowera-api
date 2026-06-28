@@ -58,6 +58,6 @@ export class ProductVariant {
   @OneToMany(() => Cart, (cart) => cart.user_id)
   cart!: number;
 
-  @OneToOne(() => OrderItem, (orderItem) => orderItem.product_variant_id)
-  order_item!: Order;
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product_variant_id)
+  order_item!: OrderItem[];
 }
