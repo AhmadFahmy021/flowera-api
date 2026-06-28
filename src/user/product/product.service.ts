@@ -30,7 +30,8 @@ export class ProductService {
                     },
                 },
                 relations: {
-                    product_image: true
+                    product_image: true,
+                    store: true
                 }
             })
 
@@ -68,13 +69,13 @@ export class ProductService {
                 order: {id: "ASC"}
             })
 
-
             return{
                 status: "success",
                 data: {
                     product: product,
                     product_variant: productVariants,
-                    addon_product: addon_product
+                    addon_product: addon_product, 
+                    store: product.store
                 }
             }
         } catch (error) {
