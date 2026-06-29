@@ -30,6 +30,7 @@ interface ShippingOptionStore {
 
 @Injectable()
 export class OrderService {
+  private readonly SERVICE_FEE = 1000;
   constructor(
     private readonly repositoryHelper: RepositoryHelper,
     private readonly shippingService: ShippingService,
@@ -191,6 +192,8 @@ export class OrderService {
 
       const { computedItems, itemsTotal } = await this.calculateItems(dto.order_items);
 
+      const serviceFee = this.SERVICE_FEE;
+
       // Calculate shipping per store
       // const shippingTotal = dto.shipping.reduce(
       //     (sum, item) => sum + item.shipping_cost,
@@ -258,7 +261,12 @@ export class OrderService {
 
               summary: {
                   items_total: itemsTotal,
-                  discount: dto.discount ?? 0
+                  service_fee: serviceFee,
+                  discount: dto.discount ?? 0,
+                  estimated_total:
+                    itemsTotal +
+                    serviceFee -
+                    (dto.discount ?? 0)
               }
           }
       }
@@ -318,12 +326,21 @@ export class OrderService {
       },
     });
 
+    const serviceFee = this.SERVICE_FEE;
+    console.log({
+        itemsTotal,
+        shippingTotal,
+        serviceFee,
+        discount: dto.discount ?? 0,
+    });
+    
   if (!address) {
   throw new NotFoundException("Address not found");
   }
     const total =
       itemsTotal +
-      shippingTotal -
+      shippingTotal +
+      serviceFee -
       (dto.discount ?? 0);
 
     // ===========================
@@ -437,6 +454,13 @@ export class OrderService {
         });
       }
 
+      itemDetails.push({
+          id: "SERVICE_FEE",
+          name: "Service Fee",
+          quantity: 1,
+          price: serviceFee,
+      });
+
       const grossAmount = itemDetails.reduce(
           (sum, item) => sum + item.price * item.quantity,
           0,
@@ -477,7 +501,7 @@ export class OrderService {
 
         payment.payment_url =
             midtrans.actions.find(
-                x => x.name === "generate-qr-code-v2",
+                x => x.name === "generate-qr-code",
             )?.url;
 
         payment.expired_payment_time =

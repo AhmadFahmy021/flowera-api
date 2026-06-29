@@ -16,11 +16,11 @@ import { UpdateOrderStatusDto } from './order.dto';
 import { Store } from 'src/database/entities/store.entity';
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
-  UNPAID: ['CONFIRM_SELLER'],
-  CONFIRM_SELLER: ['PROSES_PENGERJAAN'],
-  PROSES_PENGERJAAN: ['CONFIRM_USER'],
-  CONFIRM_USER: [],
-  DELIVERY: ['DITERIMA'],
+  UNPAID: [],
+  PAID: ["CONFIRM_SELLER"],
+  CONFIRM_SELLER: ["PROSES_PENGERJAAN"],
+  PROSES_PENGERJAAN: ["DELIVERY"],
+  DELIVERY: ["DITERIMA"],
   DITERIMA: [],
 };
 
@@ -81,11 +81,10 @@ export class OrderService {
             "product_id",
             "product_variant_id",
             "order_id.address",
-            // "address"
         ],
+        withDeleted: true,
         select: {
             id: true,
-
             order_id: {
                 id: true,
                 orderNumber: true,
@@ -164,6 +163,8 @@ export class OrderService {
     if (!order) throw new NotFoundException('Order not found');
 
     const allowed = VALID_TRANSITIONS[order.status];
+    console.log(allowed);
+    
     if (!allowed || !allowed.includes(dto.status)) {
       throw new BadRequestException(
         `Cannot transition from ${order.status} to ${dto.status}. Allowed: ${allowed?.join(', ') ?? 'none'}`,
@@ -185,7 +186,7 @@ export class OrderService {
     const id = Number(orderId);
     if (isNaN(id)) throw new BadRequestException('Invalid order ID');
 
-    const order = await this.orderRepository.findOne({ where: { id } });
+    const order = await this.orderRepository.findOne({ where: { id }, relations: ['user_id'] });
     if (!order) throw new NotFoundException('Order not found');
 
     if (order.status !== 'PROSES_PENGERJAAN') {
@@ -199,7 +200,7 @@ export class OrderService {
       user_id: { id: (order.user_id as any).id ?? order.user_id } as any,
       image_url: uploadResult.path,
       note: note ?? undefined,
-      status: 'PENDING',
+      status: 'PENDING',    
     });
 
     await this.orderRepository.update(order.id, { status: 'CONFIRM_USER' });

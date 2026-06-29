@@ -48,7 +48,7 @@ export class SellerOrderController {
 
   @Post(':id/upload-image')
   @Roles('seller')
-  @UploadFile('orders/confirm', 'image')
+  @UploadFile('orders/confirm')
   uploadImage(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,

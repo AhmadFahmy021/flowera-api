@@ -75,7 +75,7 @@ export class AuthService {
 
   // ─── Login ──────────────────────────────────────────────
   async login(dto: LoginDto) {
-    const user = await this.userRepository.findOneBy({ email: dto.email });
+    const user = await this.userRepository.findOneBy({ email: dto.email });    
     if (!user) throw new UnauthorizedException('Email atau password salah');
     if (!user.password)
       throw new UnauthorizedException('Akun ini menggunakan login Google');
