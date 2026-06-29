@@ -654,7 +654,7 @@ export class OrderService {
   async findAllByUser(userId: number) {
     const orders = await this.orderRepository.find({
       where: { user_id: { id: userId } },
-      relations: ['order_item', 'order_item.product_id', 'order_item.product_variant_id', 'order_item.store_id', 'order_image_confirmed'],
+      relations: ['order_item', 'order_item.product_id', 'order_item.product_id.product_image', 'order_item.product_variant_id', 'order_item.store_id', 'order_image_confirmed'],
       order: { createdAt: 'DESC' },
     });
     return { status: 'success', data: orders };
@@ -669,7 +669,7 @@ export class OrderService {
 
     const order = await this.orderRepository.findOne({
       where: { id, user_id: { id: userId } },
-      relations: ['order_item', 'order_item.product_id', 'order_item.product_variant_id', 'order_item.store_id', 'order_image_confirmed'],
+      relations: ['order_item', 'order_item.product_id', 'order_item.product_id.product_image', 'order_item.product_variant_id', 'order_item.store_id', 'order_image_confirmed'],
     });
     if (!order) throw new NotFoundException('Order not found');
     return { status: 'success', data: order };
