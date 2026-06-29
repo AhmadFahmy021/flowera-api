@@ -127,57 +127,123 @@ export class OrderService {
   // ─────────────────────────────────────
   
   private async calculateShippingOptionsByStore(
-    items: { store_id: number; weight_gram: number }[],
-    destination: string,
-  ): Promise<ShippingOptionStoreDto[]> {
+      items: { store_id: number; weight_gram: number }[],
+      destination: string,
+    ): Promise<ShippingOptionStoreDto[]> {
 
-    const storeMap = new Map<number, number>();
+      const storeMap = new Map<number, number>();
 
-    for (const item of items) {
-      storeMap.set(
-        item.store_id,
-        (storeMap.get(item.store_id) ?? 0) + (item.weight_gram ?? 1000),
-      );
+      for (const item of items) {
+        storeMap.set(
+          item.store_id,
+          (storeMap.get(item.store_id) ?? 0) + (item.weight_gram ?? 1000),
+        );
+      }
+
+      const result: ShippingOptionStore[] = [];
+
+      for (const [storeId, weight] of storeMap) {
+
+        const origin = await this.resolveOrigin(storeId);
+
+        const options = await this.calculateShipping(
+          origin,
+          destination,
+          weight,
+        );
+
+        result.push({
+          store_id: storeId,
+          weight,
+          shipping: options,
+        });
+      }
+
+      return result;
     }
 
-    const result: ShippingOptionStore[] = [];
+    async shippingOptions(dto: CheckoutPreviewDto) {
 
-    for (const [storeId, weight] of storeMap) {
+      const { destination } =
+          await this.resolveAddress(dto.address_id);
 
-      const origin = await this.resolveOrigin(storeId);
+      const { computedItems } =
+          await this.calculateItems(dto.order_items);
 
-      const options = await this.calculateShipping(
-        origin,
-        destination,
-        weight,
+      return this.calculateShippingOptionsByStore(
+          computedItems.map(item => ({
+              store_id: item.store_id,
+              weight_gram: item.weight_gram ?? 1000,
+          })),
+          destination,
       );
-
-      result.push({
-        store_id: storeId,
-        weight,
-        shipping: options,
-      });
-    }
-
-    return result;
   }
 
-  async shippingOptions(dto: CheckoutPreviewDto) {
+    private buildSummary(
+        itemsTotal: number,
+        shippingTotal: number,
+        discount = 0,
+    ) {
+        const serviceFee = this.SERVICE_FEE;
 
-    const { destination } =
-        await this.resolveAddress(dto.address_id);
+        const total =
+            itemsTotal +
+            shippingTotal +
+            serviceFee -
+            discount;
 
-    const { computedItems } =
-        await this.calculateItems(dto.order_items);
+        return {
+            itemsTotal,
+            shippingTotal,
+            serviceFee,
+            discount,
+            total,
+        };
+    }
 
-    return this.calculateShippingOptionsByStore(
-        computedItems.map(item => ({
-            store_id: item.store_id,
-            weight_gram: item.weight_gram ?? 1000,
-        })),
-        destination,
-    );
-}
+    private buildMidtransItems(
+        computedItems: any[],
+        shippingTotal: number,
+        serviceFee: number,
+        discount: number,
+    ) {
+
+        const items = computedItems.map(item => ({
+            id: item.product.id.toString(),
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.unitPrice,
+        }));
+
+        if (shippingTotal > 0) {
+            items.push({
+                id: "SHIPPING",
+                name: "Shipping Cost",
+                quantity: 1,
+                price: shippingTotal,
+            });
+        }
+
+        if (serviceFee > 0) {
+            items.push({
+                id: "SERVICE_FEE",
+                name: "Service Fee",
+                quantity: 1,
+                price: serviceFee,
+            });
+        }
+
+        if (discount > 0) {
+            items.push({
+                id: "DISCOUNT",
+                name: "Discount",
+                quantity: 1,
+                price: -discount,
+            });
+        }
+
+        return items;
+    }
 
   // ─────────────────────────────────────
   // CHECKOUT PREVIEW (no save, just calculate & show breakdown)
@@ -213,6 +279,8 @@ export class OrderService {
             })),
             destination,
         );
+
+        
 
       // return {
       //   status: 'success',
@@ -311,6 +379,24 @@ export class OrderService {
     const { computedItems, itemsTotal } =
       await this.calculateItems(dto.order_items);
 
+      console.log(
+          JSON.stringify(dto.order_items, null, 2),
+        );
+
+      console.log("===== CALCULATE ITEMS =====");
+      console.log(
+          computedItems.map(i => ({
+              product: i.product.name,
+              qty: i.quantity,
+              unitPrice: i.unitPrice,
+              subTotal: i.subTotal,
+          })),
+      );
+
+      console.log({
+          itemsTotal,
+      });
+
     // ===========================
     // SHIPPING
     // ===========================
@@ -320,28 +406,32 @@ export class OrderService {
       0,
     );
 
+    const summary = this.buildSummary(
+        itemsTotal,
+        shippingTotal,
+        dto.discount ?? 0,
+    );
+    
+
     const address = await this.addressRepository.findOne({
       where: {
           id: dto.address_id,
       },
     });
 
-    const serviceFee = this.SERVICE_FEE;
-    console.log({
-        itemsTotal,
-        shippingTotal,
-        serviceFee,
-        discount: dto.discount ?? 0,
-    });
+    // const serviceFee = this.SERVICE_FEE;
+    // console.log({
+    //     itemsTotal,
+    //     shippingTotal,
+    //     serviceFee,
+    //     discount: dto.discount ?? 0,
+    // });
     
   if (!address) {
   throw new NotFoundException("Address not found");
   }
-    const total =
-      itemsTotal +
-      shippingTotal +
-      serviceFee -
-      (dto.discount ?? 0);
+
+  
 
     // ===========================
     // ORDER NUMBER
@@ -363,15 +453,15 @@ export class OrderService {
         const order = manager.create(Order, {
           user_id: user,
           orderNumber,
-          status: 'UNPAID',
-          discount: dto.discount ?? 0,
-          items_total: itemsTotal,
-          shipping_total: shippingTotal,
-          total,
+          status: "UNPAID",
+          discount: summary.discount,
+          items_total: summary.itemsTotal,
+          shipping_total: summary.shippingTotal,
+          total: summary.total,
           note: dto.note,
-          isCustomerConfirmed: 'NOT_CONFIRMED',
-          address: address
-        });
+          isCustomerConfirmed: "NOT_CONFIRMED",
+          address,
+      });
 
         await manager.save(order);
 
@@ -426,40 +516,17 @@ export class OrderService {
 
           payment_status: "PENDING",
 
-          total_price: total,
+          total_price: summary.total,
 
       });
 
       // await manager.save(payment);
-      const itemDetails = computedItems.map(item => ({
-          id: item.product.id.toString(),
-          name: item.product.name,
-          quantity: item.quantity,
-          price: item.unitPrice,
-      }));
-
-      itemDetails.push({
-          id: "SHIPPING",
-          name: "Shipping Cost",
-          quantity: 1,
-          price: shippingTotal,
-      });
-
-      if ((dto.discount ?? 0) > 0) {
-        itemDetails.push({
-            id: "DISCOUNT",
-            name: "Discount",
-            quantity: 1,
-            price: -(dto.discount ?? 0),
-        });
-      }
-
-      itemDetails.push({
-          id: "SERVICE_FEE",
-          name: "Service Fee",
-          quantity: 1,
-          price: serviceFee,
-      });
+      const itemDetails = this.buildMidtransItems(
+          computedItems,
+          summary.shippingTotal,
+          summary.serviceFee,
+          summary.discount,
+      );
 
       const grossAmount = itemDetails.reduce(
           (sum, item) => sum + item.price * item.quantity,
@@ -467,16 +534,23 @@ export class OrderService {
       );
 
       console.log({
-          total,
-          grossAmount,
+        grossAmount,
+        itemDetails,
       });
 
+      if (grossAmount !== summary.total) {
+          throw new BadRequestException(
+              `Gross Amount (${grossAmount}) tidak sama dengan Total (${summary.total})`,
+          );
+      }
+      console.log(summary);
+      
       const midtrans =
         await this.paymentService.createQRIS({
 
             order_id: order.orderNumber,
 
-            gross_amount: total,
+            gross_amount: summary.total,
 
             customer_name: user.name,
 
@@ -487,72 +561,46 @@ export class OrderService {
             items: itemDetails,
 
         });
-
         payment.transaction_id =
             midtrans.transaction_id;
-
         payment.reference_id = order.orderNumber;
-
         payment.status =
             midtrans.transaction_status;
-
         payment.qr_string =
             midtrans.qr_string;
-
         payment.payment_url =
             midtrans.actions.find(
                 x => x.name === "generate-qr-code",
             )?.url;
-
         payment.expired_payment_time =
             new Date(midtrans.expiry_time);
-
         payment.payment_response =
             JSON.stringify(midtrans);
-
         await manager.save(payment);
-
         return {
-
             status: "success",
-
             message: "Checkout success",
-
             data: {
-
                 order_id: order.id,
-
                 order_number: order.orderNumber,
-
                 payment: {
-
                     transaction_id:
                         payment.transaction_id,
-
                     status:
                         payment.status,
-
                     qr_url:
                         payment.payment_url,
-
                     qr_string:
                         payment.qr_string,
-
                     expired_at:
                         payment.expired_payment_time,
-
                 },
-
                 summary: {
-
-                    items_total: itemsTotal,
-
-                    shipping_total: shippingTotal,
-
-                    discount: dto.discount ?? 0,
-
-                    total,
-
+                    items_total: summary.itemsTotal,
+                    shipping_total: summary.shippingTotal,
+                    service_fee: summary.serviceFee,
+                    discount: summary.discount,
+                    total: summary.total,
                 },
 
             },
@@ -570,6 +618,7 @@ export class OrderService {
   private async calculateItems(
     items: { product_id: number; product_variant_id?: number; quantity: number; addon_product?: string; store_id: number; weight_gram?: number }[],
   ) {
+    
     let itemsTotal = 0;
     const computedItems: {
       product_id: number;
@@ -626,7 +675,10 @@ export class OrderService {
         }
       }
 
-      const unitPrice = product.price + variantPrice + addonTotal;
+      // const unitPrice = product.price + variantPrice + addonTotal;
+      const unitPrice =
+          (variant ? variant.price : product.price)
+          + addonTotal;
       const subTotal = unitPrice * item.quantity;
       itemsTotal += subTotal;
 
