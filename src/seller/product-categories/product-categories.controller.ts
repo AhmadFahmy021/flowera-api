@@ -16,6 +16,11 @@ export class ProductCategoriesController {
     return this.productCategoriesService.getDataAll();
   }
 
+  @Get("sub")
+  getSubData(){
+    return this.productCategoriesService.getSubDataAll();
+  }
+
   // @Post('create')
   // create(@Body() dto: ProductCategoriesCreateDto){
   //   return this.productCategoriesService.create(dto)

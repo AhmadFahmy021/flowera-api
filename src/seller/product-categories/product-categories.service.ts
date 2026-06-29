@@ -28,6 +28,18 @@ export class ProductCategoriesService {
             throw error;
         }
     }
+
+    async getSubDataAll(){
+        try {
+            const sub_product_categories = await this.subProductCategoriesRepository.find();
+            return {
+                status: "success",
+                data: sub_product_categories
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
     // async create(dto: ProductCategoriesCreateDto){
     //     try {
     //         await this.repositoryHelper.createAndSave(
