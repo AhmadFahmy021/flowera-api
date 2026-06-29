@@ -29,6 +29,7 @@ export class OrderService {
         'order_item.product_id',
         'order_item.product_variant_id',
         'order_item.store_id',
+        'payment_order',
       ],
       order: {
         createdAt: 'DESC',
