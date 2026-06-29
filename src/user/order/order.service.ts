@@ -708,4 +708,27 @@ export class OrderService {
         : 'Order rejected, seller will revise',
     };
   }
+
+  // ─────────────────────────────────────
+  // Confirm Received (buyer confirms delivery)
+  // ─────────────────────────────────────
+  async confirmReceived(userId: number, orderId: string) {
+    const id = Number(orderId);
+    if (isNaN(id)) throw new BadRequestException('Invalid order ID');
+
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['user_id'],
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.user_id.id !== userId) {
+      throw new BadRequestException('This order does not belong to you');
+    }
+    if (order.status !== 'DELIVERY') {
+      throw new BadRequestException(`Can only confirm receipt when status is DELIVERY. Current: ${order.status}`);
+    }
+
+    await this.orderRepository.update(id, { status: 'DITERIMA' });
+    return { status: 'success', message: 'Pesanan telah diterima' };
+  }
 }
