@@ -499,10 +499,11 @@ export class OrderService {
         payment.qr_string =
             midtrans.qr_string;
 
-        payment.payment_url =
-            midtrans.actions.find(
-                x => x.name === "generate-qr-code",
-            )?.url;
+        const qrAction =
+          midtrans.actions?.find(x => x.name === "generate-qr-code-v2") ??
+          midtrans.actions?.find(x => x.name === "generate-qr-code");
+
+        payment.payment_url = qrAction?.url;
 
         payment.expired_payment_time =
             new Date(midtrans.expiry_time);
