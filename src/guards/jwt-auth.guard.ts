@@ -37,9 +37,12 @@ export class JwtAuthGuard implements CanActivate {
 
     const accessToken =
       request.cookies?.accessToken;
-
+      console.log(accessToken);
+      
+      
     const refreshToken =
       request.cookies?.refreshToken;
+      console.log(refreshToken);
 
     const publicKey = this.getPublicKey();
 

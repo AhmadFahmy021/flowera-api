@@ -63,7 +63,6 @@ export class PaymentService {
         name: item.name,
       })),
     };
-    console.log(payload);
     
     const serverKey =
       this.config.get<string>('MIDTRANS_SERVER_KEY');
@@ -94,9 +93,13 @@ export class PaymentService {
 
       },
     );
+    
 
     const result =
       await response.json();
+
+    console.log("Status:", response.status);
+    console.dir(result, { depth: null });
 
     if (!response.ok) {
 

@@ -58,6 +58,13 @@ export class OrderController {
     return this.orderService.confirmImage(userId, imageId, dto);
   }
 
+  @Patch(':id/confirm-received')
+  @Roles('user')
+  confirmReceived(@Req() req, @Param('id') id: string) {
+    const userId = req.user.uid;
+    return this.orderService.confirmReceived(userId, id);
+  }
+
   // ── GET routes (specific first, wildcard last) ──
 
   @Get()
