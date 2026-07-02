@@ -118,7 +118,8 @@ export class AuthController {
     const tokens = await this.authService.googleLogin(req.user);
     res.cookie('accessToken', tokens.accessToken, this.getCookieOptions(15 * 60 * 1000));
     res.cookie('refreshToken', tokens.refreshToken,this.getCookieOptions(100 * 24 * 60 * 60 * 1000));
-    return res.redirect('http://localhost:3001');
+    // return res.redirect(`${process.env.GOOGLE_REDIRECT_URL}?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`);
+    return res.redirect(`${process.env.GOOGLE_REDIRECT_URL}`);
   }
 
   @Get('google')
