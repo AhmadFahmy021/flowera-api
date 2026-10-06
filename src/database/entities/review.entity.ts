@@ -39,13 +39,13 @@ export class Review {
   //@JoinColumn({name: "USER_ID"})
   //user_id!: number;
 
-  @Column({ name: 'RATING', type: 'number' })
+  @Column({ name: 'RATING', type: 'int' })
   rating!: number;
 
-  @Column({ name: 'COMMENT', type: 'clob' })
+  @Column({ name: 'COMMENT', type: 'text' })
   comment!: number;
 
-  @Column({ name: 'IS_ANONYMOUS', type: 'number', width: 1, default: 0 })
+  @Column({ name: 'IS_ANONYMOUS', type: 'tinyint', default: 0 })
   isAnonymous!: boolean;
 
   // @Column({ name: 'nameTable' })

@@ -17,10 +17,10 @@ export class Subscriptions {
   @Column({ name: 'TITLE', length: 150 })
   title!: string;
 
-  @Column({ name: 'DESCRIPTION', type: 'clob' })
+  @Column({ name: 'DESCRIPTION', type: 'text' })
   description!: string;
 
-  @Column({ name: 'IS_SHOW', type: 'number', width: 1, default: 1 })
+  @Column({ name: 'IS_SHOW', type: 'tinyint', default: 1 })
   isShow!: boolean;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

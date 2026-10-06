@@ -28,16 +28,16 @@
 //   //@JoinColumn({name: "USER_ID"})
 //   //user_id!: number;
 
-//   @Column({ name: 'PAYMENT_METHOD', type: 'varchar2', length: 200 })
+//   @Column({ name: 'PAYMENT_METHOD', type: 'varchar', length: 200 })
 //   payment_method!: string;
 
-//   @Column({ name: 'TOTAL_PRICE', type: 'number' })
+//   @Column({ name: 'TOTAL_PRICE', type: 'int' })
 //   total_price!: string;
 
-//   @Column({ name: 'EXPIRED_PAYMENT_TIME', type: 'date' })
+//   @Column({ name: 'EXPIRED_PAYMENT_TIME', type: 'datetime' })
 //   expired_payment_time!: Date;
 
-//   @Column({ name: 'PAYMENT_TIME', type: 'date', nullable: true })
+//   @Column({ name: 'PAYMENT_TIME', type: 'datetime', nullable: true })
 //   payment_time?: Date;
 
 //   // @Column({ name: 'nameTable' })
@@ -78,7 +78,7 @@ export class PaymentOrder {
   // MIDTRANS / XENDIT / TRIPAY
   @Column({
     name: 'PAYMENT_GATEWAY',
-    type: 'varchar2',
+    type: 'varchar',
     length: 50,
     default: 'MIDTRANS',
   })
@@ -87,7 +87,7 @@ export class PaymentOrder {
   // SNAP / QRIS / VA / GOPAY / SHOPEEPAY
   @Column({
     name: 'PAYMENT_METHOD',
-    type: 'varchar2',
+    type: 'varchar',
     length: 100,
   })
   payment_method!: string;
@@ -95,7 +95,7 @@ export class PaymentOrder {
   // QRIS / BCA_VA / BNI_VA / GOPAY dll
   @Column({
     name: 'PAYMENT_CHANNEL',
-    type: 'varchar2',
+    type: 'varchar',
     length: 100,
     nullable: true,
   })
@@ -104,7 +104,7 @@ export class PaymentOrder {
   // Pending / Paid / Failed / Expired / Cancelled
   @Column({
     name: 'STATUS',
-    type: 'varchar2',
+    type: 'varchar',
     length: 50,
     default: 'PENDING',
   })
@@ -113,14 +113,14 @@ export class PaymentOrder {
   // Total yang harus dibayar
   @Column({
     name: 'TOTAL_PRICE',
-    type: 'number',
+    type: 'int',
   })
   total_price!: number;
 
   // Order ID Merchant (ORDER-20260628-0001)
   @Column({
     name: 'REFERENCE_ID',
-    type: 'varchar2',
+    type: 'varchar',
     length: 150,
     unique: true,
   })
@@ -129,7 +129,7 @@ export class PaymentOrder {
   // Transaction ID dari Midtrans
   @Column({
     name: 'TRANSACTION_ID',
-    type: 'varchar2',
+    type: 'varchar',
     length: 150,
     nullable: true,
   })
@@ -138,7 +138,7 @@ export class PaymentOrder {
   // Snap Token
   @Column({
     name: 'SNAP_TOKEN',
-    type: 'varchar2',
+    type: 'varchar',
     length: 300,
     nullable: true,
   })
@@ -147,7 +147,7 @@ export class PaymentOrder {
   // Redirect URL Midtrans
   @Column({
     name: 'PAYMENT_URL',
-    type: 'clob',
+    type: 'text',
     nullable: true,
   })
   payment_url?: string;
@@ -155,7 +155,7 @@ export class PaymentOrder {
   // QR String (khusus QRIS)
   @Column({
     name: 'QR_STRING',
-    type: 'clob',
+    type: 'text',
     nullable: true,
   })
   qr_string?: string;
@@ -163,7 +163,7 @@ export class PaymentOrder {
   // Nomor VA
   @Column({
     name: 'VA_NUMBER',
-    type: 'varchar2',
+    type: 'varchar',
     length: 100,
     nullable: true,
   })
@@ -172,7 +172,7 @@ export class PaymentOrder {
   // Nama Bank VA
   @Column({
     name: 'BANK',
-    type: 'varchar2',
+    type: 'varchar',
     length: 100,
     nullable: true,
   })
@@ -181,7 +181,7 @@ export class PaymentOrder {
   // Waktu kadaluarsa pembayaran
   @Column({
     name: 'EXPIRED_PAYMENT_TIME',
-    type: 'timestamp',
+    type: 'datetime',
     nullable: true,
   })
   expired_payment_time?: Date;
@@ -189,7 +189,7 @@ export class PaymentOrder {
   // Waktu pembayaran berhasil
   @Column({
     name: 'PAYMENT_TIME',
-    type: 'timestamp',
+    type: 'datetime',
     nullable: true,
   })
   payment_time?: Date;
@@ -197,7 +197,7 @@ export class PaymentOrder {
   // Response lengkap dari Midtrans
   @Column({
     name: 'PAYMENT_RESPONSE',
-    type: 'clob',
+    type: 'text',
     nullable: true,
   })
   payment_response?: string;

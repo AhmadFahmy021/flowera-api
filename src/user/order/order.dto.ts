@@ -168,3 +168,18 @@ export class ShippingOptionStoreDto {
     weight!: number;
     shipping!: ShippingCostResponse[];
 }
+
+export class UpdateOrderStatusDto {
+  @IsString()
+  @IsIn([
+    "CONFIRM_RECEIVED",
+    "PROSES_PENGERJAAN",
+    "DITERIMA",
+  ])
+  @IsNotEmpty()
+  status!: string;
+
+  @IsString()
+  @IsOptional()
+  reply_note?: string;
+}

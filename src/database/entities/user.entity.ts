@@ -44,7 +44,7 @@ export class User {
   avatar?: string;
 
   // Refresh token disimpan di DB (hashed)
-  @Column({ name: 'REFRESH_TOKEN', type: 'clob', nullable: true })
+  @Column({ name: 'REFRESH_TOKEN', type: 'text', nullable: true })
   refreshToken?: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

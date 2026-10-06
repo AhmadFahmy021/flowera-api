@@ -19,14 +19,26 @@ import { Address } from 'src/database/entities/address.entity';
 
 import { RepositoryHelper } from 'src/common/helpers/repository.helper';
 import { ShippingCostResponse, ShippingService } from 'src/shipping/shipping.service';
-import { CheckoutDto, CheckoutPreviewDto, ConfirmImageDto, ShippingOptionStoreDto } from './order.dto';
+import { CheckoutDto, CheckoutPreviewDto, ConfirmImageDto, ShippingOptionStoreDto, UpdateOrderStatusDto } from './order.dto';
 import { PaymentService } from 'src/payment/payment.service';
+import { NotificationService } from 'src/common/services/notification.service';
 
 interface ShippingOptionStore {
     store_id: number;
     weight: number;
     shipping: ShippingCostResponse[];
 }
+
+const USER_TRANSITIONS: Record<string, string[]> = {
+  CONFIRM_USER: [
+    "CONFIRM_RECEIVED",
+    "PROSES_PENGERJAAN",
+  ],
+
+  DELIVERY: [
+    "DITERIMA",
+  ],
+};
 
 @Injectable()
 export class OrderService {
@@ -36,6 +48,7 @@ export class OrderService {
     private readonly shippingService: ShippingService,
     private readonly paymentService: PaymentService,
      private readonly dataSource: DataSource,
+     private readonly notificationService: NotificationService,
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -767,23 +780,112 @@ export class OrderService {
   // ─────────────────────────────────────
   // Confirm Received (buyer confirms delivery)
   // ─────────────────────────────────────
-  async confirmReceived(userId: number, orderId: string) {
-    const id = Number(orderId);
-    if (isNaN(id)) throw new BadRequestException('Invalid order ID');
+  async updateStatusOrder(
+    userId: number,
+    orderItemId: string,
+    dto: UpdateOrderStatusDto,
+  ) {
 
-    const order = await this.orderRepository.findOne({
-      where: { id },
-      relations: ['user_id'],
+    const id = Number(orderItemId);
+
+    if (isNaN(id)) {
+      throw new BadRequestException("Invalid order ID");
+    }
+
+    const orderItem = await this.orderItemRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        order_id: {
+          user_id: true,
+        },
+        store_id: {
+          seller: {
+            user: true,
+          }
+        },
+        product_id: true,
+      },
     });
-    if (!order) throw new NotFoundException('Order not found');
-    if (order.user_id.id !== userId) {
-      throw new BadRequestException('This order does not belong to you');
-    }
-    if (order.status !== 'DELIVERY') {
-      throw new BadRequestException(`Can only confirm receipt when status is DELIVERY. Current: ${order.status}`);
+
+    if (!orderItem) {
+      throw new NotFoundException("Order item not found");
     }
 
-    await this.orderRepository.update(id, { status: 'DITERIMA' });
-    return { status: 'success', message: 'Pesanan telah diterima' };
+    if (orderItem.order_id.user_id.id !== userId) {
+      throw new BadRequestException(
+        "This order does not belong to you",
+      );
+    }
+
+    const order_image_confirmed = await this.imageRepository.findOne({
+      where: {
+        order_item: { id: orderItem.id },
+        status: "PENDING",
+      },
+      relations: {
+        order_item: true,
+      }
+    })
+
+
+    if (!order_image_confirmed) {
+      throw new BadRequestException(
+        "No pending order image confirmation found for this order item",
+      );
+    }
+
+    const allowedTransitions =
+      USER_TRANSITIONS[orderItem.status] ?? [];
+
+    if (!allowedTransitions.includes(dto.status)) {
+
+      throw new BadRequestException(
+        `Cannot transition from ${orderItem.status} to ${dto.status}. Allowed: ${allowedTransitions.join(", ")}`
+      );
+
+    }
+
+    if (dto.status == "PROSES_PENGERJAAN") {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        }
+      })
+
+      await this.confirmImage(userId, order_image_confirmed.id.toString(), {
+        status: "REJECTED",
+        reply_note: dto.reply_note ?? "User requested revision",
+      });
+
+      await this.notificationService.orderRevisiUser({
+        email: orderItem.store_id.email ?? "",
+        store_name: orderItem.store_id.name ?? "",
+        customer_name: user?.name ?? "",
+        product_name: orderItem.product_id.name ?? "",
+        order_number: orderItem.order_id.orderNumber ?? "",
+        reply_note: dto.reply_note ?? "User requested revision",
+        order_url: `https://flowera.id/seller/order/${orderItem.order_id.id}`,
+      });
+    } else {
+      await this.confirmImage(userId, order_image_confirmed.id.toString(), {
+        status: "CONFIRMED",
+        reply_note: dto.reply_note ?? "User requested revision",
+      });
+    }
+
+    const previousStatus = orderItem.status;
+
+    orderItem.status = dto.status;
+
+    await this.orderItemRepository.save(orderItem);
+
+    return {
+        status: "success",
+        message:
+            `Order status updated from ${previousStatus} to ${dto.status}`,
+    };
+
   }
 }

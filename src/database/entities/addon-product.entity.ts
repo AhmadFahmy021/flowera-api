@@ -19,10 +19,10 @@ export class AddonProduct {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @Column({ name: 'TITLE', type: 'varchar2', length: 150 })
+  @Column({ name: 'TITLE', type: 'varchar', length: 150 })
   title!: string;
 
-  @Column({ name: 'PRICE', type: 'number' })
+  @Column({ name: 'PRICE', type: 'int' })
   price!: number;
 
   @ManyToOne(() => Product, (product) => product.addon_product)

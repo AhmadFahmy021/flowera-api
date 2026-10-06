@@ -38,10 +38,10 @@ export class ProductImage {
   @JoinColumn({ name: 'ADDON_PRODUCT_ID' })
   addon_product!: AddonProduct;
 
-  @Column({ name: 'IMAGE_URL', type: 'varchar2', length: 255 })
+  @Column({ name: 'IMAGE_URL', type: 'varchar', length: 255 })
   image_url!: string;
 
-  @Column({ name: 'IS_DEFAULT', type: 'number', width: 1, default: 0 })
+  @Column({ name: 'IS_DEFAULT', type: 'tinyint', default: 0 })
   isDefault!: boolean;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

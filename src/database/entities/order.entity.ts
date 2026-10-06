@@ -34,28 +34,28 @@ export class Order {
   })
   address!: Address;
 
-  @Column({ name: 'ORDER_NUMBER', type: 'varchar2', length: 150 })
+  @Column({ name: 'ORDER_NUMBER', type: 'varchar', length: 150 })
   orderNumber!: string;
 
-  @Column({ name: 'STATUS', type: 'varchar2', length: 100 })
+  @Column({ name: 'STATUS', type: 'varchar', length: 100 })
   status!: string;
 
-  @Column({ name: 'TOTAL', type: 'number' })
+  @Column({ name: 'TOTAL', type: 'int' })
   total!: number;
 
-  @Column({ name: 'DISCOUNT', type: 'number' })
+  @Column({ name: 'DISCOUNT', type: 'int' })
   discount!: number;
 
-  @Column({ name: 'ITEMS_TOTAL', type: 'number', nullable: true })
+  @Column({ name: 'ITEMS_TOTAL', type: 'int', nullable: true })
   items_total?: number;
 
-  @Column({ name: 'SHIPPING_TOTAL', type: 'number', nullable: true })
+  @Column({ name: 'SHIPPING_TOTAL', type: 'int', nullable: true })
   shipping_total?: number;
 
-  @Column({ name: 'IS_CUSTOMER_CONFIRMED', type: 'varchar2', length: 150, nullable: true })
+  @Column({ name: 'IS_CUSTOMER_CONFIRMED', type: 'varchar', length: 150, nullable: true })
   isCustomerConfirmed?: string;
 
-  @Column({ name: 'NOTE', type: 'clob', nullable: true })
+  @Column({ name: 'NOTE', type: 'text', nullable: true })
   note?: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

@@ -26,13 +26,13 @@ export class ProductVariant {
   @JoinColumn({ name: 'PRODUCT_ID' })
   product!: Product;
 
-  @Column({ name: 'TITLE', length: 150, type: 'varchar2' })
+  @Column({ name: 'TITLE', length: 150, type: 'varchar' })
   title!: string;
 
-  @Column({ name: 'SUB_TITLE', length: 150, type: 'varchar2' })
+  @Column({ name: 'SUB_TITLE', length: 150, type: 'varchar' })
   subTitle!: string;
 
-  @Column({ name: 'PRICE', type: 'number' })
+  @Column({ name: 'PRICE', type: 'int' })
   price!: number;
 
   

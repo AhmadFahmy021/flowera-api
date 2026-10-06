@@ -14,13 +14,29 @@ import { OrderImageConfirmed } from 'src/database/entities/order-image-confirmed
 import { MinioService } from 'src/common/services/minio.service';
 import { UpdateOrderStatusDto } from './order.dto';
 import { Store } from 'src/database/entities/store.entity';
+import { NotificationService } from 'src/common/services/notification.service';
 
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  UNPAID: [],
-  PAID: ["CONFIRM_SELLER"],
-  CONFIRM_SELLER: ["PROSES_PENGERJAAN"],
-  PROSES_PENGERJAAN: ["DELIVERY"],
+const SELLER_TRANSITIONS: Record<string, string[]> = {
+  PAID: [
+    "CONFIRM_SELLER",
+  ],
+
+  CONFIRM_SELLER: [
+    "PROSES_PENGERJAAN",
+  ],
+
+  PROSES_PENGERJAAN: [
+    "CONFIRM_USER",
+  ],
+
+  CONFIRM_USER: [],
+
+  CONFIRM_RECEIVED: [
+    "DELIVERY",
+  ],
+
   DELIVERY: [],
+
   DITERIMA: [],
 };
 
@@ -28,6 +44,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 export class OrderService {
   constructor(
     private readonly minioService: MinioService,
+    private readonly notificationService: NotificationService,
 
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
@@ -157,26 +174,88 @@ export class OrderService {
   // ─────────────────────────────────────
   async updateStatus(orderId: string, dto: UpdateOrderStatusDto) {
     const id = Number(orderId);
-    if (isNaN(id)) throw new BadRequestException('Invalid order ID');
 
-    const order = await this.orderRepository.findOne({ where: { id } });
-    if (!order) throw new NotFoundException('Order not found');
+    if (isNaN(id)) {
+      throw new BadRequestException("Invalid order ID");
+    }
 
-    const allowed = VALID_TRANSITIONS[order.status];
-    console.log(allowed);
-    
-    if (!allowed || !allowed.includes(dto.status)) {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: [
+        "user_id",
+        "order_item",
+        "order_item.product_id",
+        "order_item.store_id",
+      ],
+    });
+
+    if (!order) {
+      throw new NotFoundException("Order not found");
+    }
+
+    const allowedTransitions = SELLER_TRANSITIONS[order.status] ?? [];
+
+    if (!allowedTransitions.includes(dto.status)) {
       throw new BadRequestException(
-        `Cannot transition from ${order.status} to ${dto.status}. Allowed: ${allowed?.join(', ') ?? 'none'}`,
+        `Cannot transition from ${order.status} to ${dto.status}. Allowed: ${allowedTransitions.join(", ")}`
       );
     }
 
-    const updateData: any = { status: dto.status };
-    if (dto.status === 'CONFIRM_SELLER') updateData.isCustomerConfirmed = 'CONFIRMED';
+    const updateData: Partial<Order> = {
+      status: dto.status,
+    };
+
+    switch (dto.status) {
+      case "CONFIRM_SELLER":
+        updateData.status = "CONFIRM_SELLER";
+        break;
+        
+      case "PROSES_PENGERJAAN":
+        updateData.status = "PROSES_PENGERJAAN";
+        // future logic
+        break;
+
+      case "CONFIRM_USER":{
+        const latestImage = await this.imageRepository.findOne({
+            where: {
+                order_id: {
+                    id: order.id,
+                },
+            },
+            order: {
+                createdAt: "DESC",
+            },
+        });
+
+          if (!latestImage) {
+              throw new BadRequestException(
+                  "Proof image not found.",
+              );
+          }
+
+          await this.notificationService.orderFinishedImage({
+              phone: order.user_id.phone_number,
+              customer_name: order.user_id.name,
+              order_number: order.orderNumber,
+              product_name: order.order_item[0].product_id.name,
+              store_name: order.order_item[0].store_id.name,
+              image_url: "https://storage.ahmadfahmyga.my.id/flowera"+latestImage.image_url,
+              order_url: `https://flowera.my.id /profile/orders/${order.orderNumber}`,
+          });
+
+          updateData.status = "CONFIRM_USER";
+      }
+
+        break;
+
+    }
 
     await this.orderRepository.update(id, updateData);
 
-    return { status: 'success', message: `Order status updated to ${dto.status}` };
+    return {
+      status: "success",
+      message: `Order status updated from ${order.status} to ${dto.status}`,
+    };
   }
 
   // ─────────────────────────────────────
@@ -202,8 +281,6 @@ export class OrderService {
       note: note ?? undefined,
       status: 'PENDING',    
     });
-
-    await this.orderRepository.update(order.id, { status: 'CONFIRM_USER' });
 
     return { status: 'success', message: 'Proof image uploaded, waiting for user confirmation', data: { image_url: uploadResult.path } };
   }

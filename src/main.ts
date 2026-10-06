@@ -25,6 +25,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3001',
+      'http://localhost:8081',
       'https://flowera.my.id'
     ],
     credentials: true,

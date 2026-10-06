@@ -16,7 +16,7 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/guards/roles.decorator';
 
-import { CheckoutDto, CheckoutPreviewDto, ConfirmImageDto } from './order.dto';
+import { CheckoutDto, CheckoutPreviewDto, ConfirmImageDto, UpdateOrderStatusDto } from './order.dto';
 
 @Controller('user/order')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,11 +58,20 @@ export class OrderController {
     return this.orderService.confirmImage(userId, imageId, dto);
   }
 
-  @Patch(':id/confirm-received')
-  @Roles('user')
-  confirmReceived(@Req() req, @Param('id') id: string) {
+  @Patch(":id/status")
+  @Roles("user")
+  updateStatus(
+    @Req() req,
+    @Param("id") id: string,
+    @Body() dto: UpdateOrderStatusDto,
+  ) {
     const userId = req.user.uid;
-    return this.orderService.confirmReceived(userId, id);
+
+    return this.orderService.updateStatusOrder(
+      userId,
+      id,
+      dto,
+    );
   }
 
   // ── GET routes (specific first, wildcard last) ──

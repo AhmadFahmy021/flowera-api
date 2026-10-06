@@ -33,19 +33,19 @@ export class Discount {
   //@JoinColumn({name: "USER_ID"})
   //user_id!: number;
 
-  @Column({ name: 'TITLE', type: 'varchar2', length: 150 })
+  @Column({ name: 'TITLE', type: 'varchar', length: 150 })
   title!: string;
 
-  @Column({ name: 'TOTAL_DISKON', type: 'number' })
+  @Column({ name: 'TOTAL_DISKON', type: 'int' })
   totalDiskon!: number;
 
-  @Column({ name: 'DESCRIPTION', type: 'clob' })
+  @Column({ name: 'DESCRIPTION', type: 'text' })
   description!: number;
 
-  @Column({ name: 'EXPIRED', type: 'date' })
+  @Column({ name: 'EXPIRED', type: 'datetime' })
   expired!: Date;
 
-  @Column({ name: 'IS_FOR_SUBSCRIPTION', type: 'number', width: 1, default: 0 })
+  @Column({ name: 'IS_FOR_SUBSCRIPTION', type: 'tinyint', default: 0 })
   isForSubscription!: boolean;
 
   // @Column({ name: 'nameTable' })

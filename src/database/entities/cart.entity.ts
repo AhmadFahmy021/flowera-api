@@ -32,16 +32,16 @@ export class Cart {
   @JoinColumn({ name: 'PRODUCT_VARIANT_ID' })
   product_variant_id!: number;
 
-  @Column({ name: 'QUANTITY', type: 'number' })
+  @Column({ name: 'QUANTITY', type: 'int' })
   quantity!: number;
 
-  @Column({ name: 'PRICE', type: 'number' })
+  @Column({ name: 'PRICE', type: 'int' })
   price!: number;
 
-  @Column({ name: 'SUB_TOTAL', type: 'number' })
+  @Column({ name: 'SUB_TOTAL', type: 'int' })
   subTotal!: number;
 
-  @Column({ name: 'ADDON_PRODUCT', type: 'clob' })
+  @Column({ name: 'ADDON_PRODUCT', type: 'text' })
   addon_product!: string;
 
   // @Column({ name: 'nameTable' })

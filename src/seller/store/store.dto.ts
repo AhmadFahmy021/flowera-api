@@ -45,6 +45,10 @@ export class StoreCreateDto {
     @IsString()
     @IsOptional()
     subdistrict_id?: string;
+    
+    @IsString()
+    @IsNotEmpty()
+    phoneNumber?: string;
 }
 
 export class StoreUpdateDto extends PartialType(StoreCreateDto) {}

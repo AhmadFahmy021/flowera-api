@@ -20,26 +20,26 @@ export class Store {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @Column({ name: 'NAME', type: 'varchar2', length: 150 })
+  @Column({ name: 'NAME', type: 'varchar', length: 150 })
   name!: string;
 
-  @Column({ name: 'SLUG', type: 'varchar2', length: 255 })
+  @Column({ name: 'SLUG', type: 'varchar', length: 255 })
   slug!: string;
 
-  @Column({ name: 'LOGO', type: 'varchar2', length: 255, nullable: true})
+  @Column({ name: 'LOGO', type: 'varchar', length: 255, nullable: true})
   logo?: string;
 
   @OneToOne(() => Seller, (seller) => seller.store)
   @JoinColumn({ name: 'SELLER_ID' })
   seller!: Seller;
 
-  @Column({ name: 'ADDRESS', type: 'clob' })
+  @Column({ name: 'ADDRESS', type: 'text' })
   address!: string;
 
-  @Column({ name: 'TYPE', type: 'varchar2', length: 150 })
+  @Column({ name: 'TYPE', type: 'varchar', length: 150 })
   type!: string;
 
-  @Column({ name: 'DESCRIPTION', type: 'clob' })
+  @Column({ name: 'DESCRIPTION', type: 'text' })
   description!: string;
 
   @Column({
@@ -52,30 +52,36 @@ export class Store {
   })
   rating?: number;
 
-  @Column({ name: 'CITY', type: 'varchar2', length: 200 })
+  @Column({ name: 'CITY', type: 'varchar', length: 200 })
   city!: string;
 
   // Regional fields (matching Address pattern)
-  @Column({ name: 'PROVINCE_NAME', type: 'varchar2', length: 200, nullable: true })
+  @Column({ name: 'PROVINCE_NAME', type: 'varchar', length: 200, nullable: true })
   province_name?: string;
 
-  @Column({ name: 'CITY_NAME', type: 'varchar2', length: 200, nullable: true })
+  @Column({ name: 'CITY_NAME', type: 'varchar', length: 200, nullable: true })
   city_name?: string;
 
-  @Column({ name: 'DISTRICT_NAME', type: 'varchar2', length: 200, nullable: true })
+  @Column({ name: 'DISTRICT_NAME', type: 'varchar', length: 200, nullable: true })
   district_name?: string;
 
-  @Column({ name: 'SUBDISTRICT_NAME', type: 'varchar2', length: 200, nullable: true })
+  @Column({ name: 'SUBDISTRICT_NAME', type: 'varchar', length: 200, nullable: true })
   subdistrict_name?: string;
 
-  @Column({ name: 'ZIP_CODE', type: 'varchar2', length: 10, nullable: true })
+  @Column({ name: 'ZIP_CODE', type: 'varchar', length: 10, nullable: true })
   zip_code?: string;
 
-  @Column({ name: 'SUBDISTRICT_ID', type: 'varchar2', length: 20, nullable: true })
+  @Column({ name: 'SUBDISTRICT_ID', type: 'varchar', length: 20, nullable: true })
   subdistrict_id?: string;
 
-  @Column({ name: 'DATEONLINELAST', type: 'date', nullable: true })
+  @Column({ name: 'DATEONLINELAST', type: 'datetime', nullable: true })
   dateOnlineLast!: Date;
+  
+  @Column({ name: 'PHONE_NUMBER', type: 'varchar', length: 20, nullable: true })
+  phoneNumber?: string;
+
+  @Column({ name: 'EMAIL', type: 'varchar', length: 150, nullable: true })
+  email?: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
   createdAt!: Date;

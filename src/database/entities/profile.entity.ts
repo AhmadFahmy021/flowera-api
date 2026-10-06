@@ -21,16 +21,16 @@ export class Profile {
   @JoinColumn({ name: 'USER_ID' })
   user_id!: User;
 
-  @Column({ name: 'BIRTH_PLACE', type: 'varchar2' })
+  @Column({ name: 'BIRTH_PLACE', type: 'varchar', length: 255 })
   birth_place!: string;
 
-  @Column({ name: 'BIRTH_DATE', type: 'date' })
+  @Column({ name: 'BIRTH_DATE', type: 'datetime' })
   birth_date!: Date;
 
-  @Column({ name: 'GENDER', type: 'varchar2', length: 50 })
+  @Column({ name: 'GENDER', type: 'varchar', length: 50 })
   gender!: string;
 
-  @Column({ name: 'NO_HP', type: 'varchar2', length: 50 })
+  @Column({ name: 'NO_HP', type: 'varchar', length: 50 })
   no_hp!: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

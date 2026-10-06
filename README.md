@@ -25,7 +25,7 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-This project — **Flowera API** — is built on top of the NestJS framework, using **TypeORM** as the ORM layer and **Oracle Database (21c XE)** as the database engine.
+This project — **Flowera API** — is built on top of the NestJS framework, using **TypeORM** as the ORM layer and **MySQL 8** as the database engine.
 
 ## Project setup
 
@@ -39,10 +39,10 @@ Create a `.env` file in the project root:
 
 ```env
 DB_HOST=127.0.0.1
-DB_PORT=1521
+DB_PORT=3306
 DB_USERNAME=root
 DB_PASSWORD="your_password"
-DB_SERVICE_NAME=XEPDB1
+DB_DATABASE=flowera
 ```
 
 > Wrap the password in quotes if it contains special characters (e.g. `#`).
@@ -60,9 +60,9 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Database Migrations (TypeORM + Oracle)
+## Database Migrations (TypeORM + MySQL)
 
-This project uses TypeORM migrations to manage the Oracle database schema. Entities are centralized under `src/database/entities/`.
+This project uses TypeORM migrations to manage the MySQL database schema. Entities are centralized under `src/database/entities/`.
 
 Generate a new migration based on entity changes:
 
@@ -82,11 +82,15 @@ Revert the last executed migration:
 $ pnpm typeorm migration:revert
 ```
 
-### Oracle-specific notes
+### MySQL-specific notes
 
-- Oracle does not support the `boolean` type — use `@Column({ type: 'number', width: 1, default: 1 })` instead.
-- For long text fields, use `@Column({ type: 'text' })` (TypeORM auto-maps this to `CLOB` on Oracle).
+- There is no native `boolean` on MySQL — use `@Column({ type: 'tinyint', default: 1 })` (TypeORM maps a `boolean` property to `tinyint(1)`).
+- For long text use `text` (64 KB) or `longtext`; the old Oracle `clob` columns are now `text`.
+- Money/quantity columns use `int` so mysql2 returns a `number` (like Oracle `NUMBER` did). `decimal` columns (`PRODUCT.RATING`, `STORE.RATING`) also stay `number` because `data-source.ts` sets `extra: { decimalNumbers: true }`; without that option mysql2 returns them as `string`.
+- `varchar` always needs a length, so migrated `varchar2` columns use the original length or 255 by default.
 - Soft deletes are implemented via `@DeleteDateColumn({ name: 'DELETED_AT' })`.
+- `migration:generate` diffs tables case-sensitively. On MySQL with `lower_case_table_names=1` (Windows/macOS) the tables are stored lowercase while the entities declare uppercase names (`ADMIN`, `USERS`, ...), so the diff reports the whole schema as missing and generates a full recreate. Generate migrations on Linux/CI (`lower_case_table_names=0`) or ignore the output; `migration:run` is unaffected because applied migrations are tracked in the `migrations` table.
+- `PRODUCT.RATING` and `STORE.RATING` are `decimal(1,1)`, i.e. only `0.0`–`0.9` (unchanged from the old Oracle `NUMBER(1,1)` DDL). Storing a real rating such as `5.0` fails with `Out of range value for column 'RATING'` — widen to `precision: 2, scale: 1` if ratings above `0.9` are needed.
 
 ## Project Structure
 

@@ -20,13 +20,13 @@ export class FaqStore {
   @JoinColumn({ name: 'STORE_ID' })
   store!: Store;
 
-  @Column({ name: 'TITLE', length: 150, type: 'varchar2' })
+  @Column({ name: 'TITLE', length: 150, type: 'varchar' })
   title!: string;
 
-  @Column({ name: 'DESCRIPTION', type: 'clob' })
+  @Column({ name: 'DESCRIPTION', type: 'text' })
   description!: string;
 
-  @Column({ name: 'IS_SHOW', type: 'number', width: 1, default: 1 })
+  @Column({ name: 'IS_SHOW', type: 'tinyint', default: 1 })
   isShow!: boolean;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

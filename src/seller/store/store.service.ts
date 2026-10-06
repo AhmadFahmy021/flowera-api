@@ -79,7 +79,8 @@ export class StoreService {
                     subdistrict_name: dto.subdistrict_name ?? undefined,
                     zip_code: dto.zip_code ?? undefined,
                     subdistrict_id: dto.subdistrict_id ?? undefined,
-                    seller: {id: seller.id}
+                    seller: {id: seller.id},
+                        
                 }
             )
 

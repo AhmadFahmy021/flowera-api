@@ -26,13 +26,13 @@ export class Product {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id!: number;
 
-  @Column({ name: 'NAME', type: 'varchar2', length: 150 })
+  @Column({ name: 'NAME', type: 'varchar', length: 150 })
   name!: string;
 
-  @Column({ name: 'SLUG', type: 'varchar2', length: 255 })
+  @Column({ name: 'SLUG', type: 'varchar', length: 255 })
   slug!: string;
 
-  @Column({ name: 'DESCRIPTION', type: 'clob', nullable: true})
+  @Column({ name: 'DESCRIPTION', type: 'text', nullable: true})
   description?: string;
 
   @Column({
@@ -61,13 +61,13 @@ export class Product {
   })
   store!: Store;
 
-  @Column({ name: 'IS_LIFE_FLOWER', type: 'number', width: 1, default: 1 })
+  @Column({ name: 'IS_LIFE_FLOWER', type: 'tinyint', default: 1 })
   isLifeFlower!: boolean;
 
-  @Column({ name: 'PRICE', type: 'number' })
+  @Column({ name: 'PRICE', type: 'int' })
   price!: number;
 
-  @Column({ name: 'WEIGHT', type: 'number', nullable: true, default: 0 })
+  @Column({ name: 'WEIGHT', type: 'int', nullable: true, default: 0 })
   weight?: number;
 
   @CreateDateColumn({ name: 'CREATED_AT' })

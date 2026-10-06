@@ -13,7 +13,7 @@ const question = (prompt) => new Promise((resolve) => rl.question(prompt, resolv
 const toPascalCase = (str) =>
   str.replace(/(^\w|[-_]\w)/g, (match) => match.replace(/[-_]/, '').toUpperCase());
 
-// Convert ke UPPER_SNAKE_CASE (untuk nama tabel Oracle)
+// Convert ke UPPER_SNAKE_CASE (untuk nama tabel MySQL)
 const toUpperSnakeCase = (str) =>
   str.replace(/([a-z])([A-Z])/g, '$1_$2')
      .replace(/-/g, '_')
@@ -36,9 +36,9 @@ async function main() {
 
   console.log(`\n🏗️  Membuat entity: ${className}`);
 
-  // Tanya nama tabel Oracle
+  // Tanya nama tabel MySQL
   const tableName = await question(
-    `📋 Nama tabel di Oracle [default: ${defaultTableName}]: `
+    `📋 Nama tabel di MySQL [default: ${defaultTableName}]: `
   );
   const finalTableName = tableName.trim() || defaultTableName;
 

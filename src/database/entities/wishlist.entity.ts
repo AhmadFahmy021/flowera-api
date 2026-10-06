@@ -21,7 +21,7 @@ export class Wishlist {
   @JoinColumn({ name: 'USER_ID' })
   user_id!: User;
 
-  @Column({ name: 'NAME', type: 'varchar2', length: 150 })
+  @Column({ name: 'NAME', type: 'varchar', length: 150 })
   name!: string;
 
   @CreateDateColumn({ name: 'CREATED_AT' })
